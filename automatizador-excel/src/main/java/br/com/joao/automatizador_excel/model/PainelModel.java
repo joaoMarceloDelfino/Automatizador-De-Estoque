@@ -1,8 +1,13 @@
 package br.com.joao.automatizador_excel.model;
 
 import java.io.File;
+
+
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -12,20 +17,22 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Multimap;
+ 
 
 public class PainelModel {
 	Workbook workbook;
 	Sheet sheet;
+	int quantidadeIndex;
+	int ReferenciaIndex;
+
 	List<Double> quantidades = new ArrayList<Double>();
 	List<String> referencias = new ArrayList<String>();
-	List<Item> itens = new ArrayList<Item>();
-	List<Item> duplicados = new ArrayList<Item>();
+ 	List<Item> duplicados = new ArrayList<Item>();
 	Set<Item> naoDuplicados = new HashSet();
 	List<Integer>linhasExcluir=new ArrayList();
 	List<Item>naoDuplicadoseAtualizados=new ArrayList();
@@ -66,46 +73,60 @@ public class PainelModel {
 
 	int nLinhas = sheet.getPhysicalNumberOfRows();
 
-	public void iterarColunaString(String ColunaNome) {
+	public List<String> iterarColunaString(String ColunaNome,int colunaIndex) {
 		sheetCriadoVerificacao();
+		List<String>rowValores=new ArrayList<String>();
 		try {
-			int colunaIndex = getColunaIndice(ColunaNome);
+			colunaIndex = getColunaIndice(ColunaNome);
 			for (int i = sheet.getFirstRowNum() + 1; i < nLinhas; i++) {
-				referencias.add(sheet.getRow(i).getCell(colunaIndex).getStringCellValue());
+				//referencias.add(sheet.getRow(i).getCell(colunaIndex).getStringCellValue());
+				rowValores.add(sheet.getRow(i).getCell(colunaIndex).getStringCellValue());
 			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.err.println("Coluna nao encontrada");
 		}
+		return rowValores;
 	}
 
-	public void iterarColunaNumerica(String ColunaNome) {
+	public List<Double> iterarColunaNumerica(String ColunaNome,int colunaIndex) {
 		sheetCriadoVerificacao();
+		List<Double>rowValores=new ArrayList<Double>();
 		try {
-			int colunaIndex = getColunaIndice(ColunaNome);
+			colunaIndex = getColunaIndice(ColunaNome);
 			int nLinhas = sheet.getPhysicalNumberOfRows();
 			for (int i = sheet.getFirstRowNum() + 1; i < nLinhas; i++) {
-				quantidades.add(sheet.getRow(i).getCell(colunaIndex).getNumericCellValue());
+				rowValores.add(sheet.getRow(i).getCell(colunaIndex).getNumericCellValue());
 			}
 
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.err.println("Coluna nao encontrada");
 		}
+		return rowValores;
 
 	}
+	private void getColunaNumerica(String ColunaNome, int colunaIndex, List<Double>listaNumerica) {
+		listaNumerica.addAll(iterarColunaNumerica(ColunaNome,colunaIndex));
+	}
+	private void getColunaString(String ColunaNome, int colunaIndex, List<String>listaString) {
+		listaString.addAll(iterarColunaString(ColunaNome,colunaIndex));
+	}
 
-	private void criarObjetos() {
-		Iterator<Double> quantidadesIterator = quantidades.iterator();
-		Iterator<String> referenciaIterator = referencias.iterator();
+
+	private List<Item>  criarObjetos(List<Double>listaNumerica,List<String>listaString,List<Item>itens) {
+		
+		Iterator<Double> listaNumericaIterator = listaNumerica.iterator();
+		Iterator<String> listaStringIterator = listaString.iterator();
 		for (int i = sheet.getFirstRowNum() + 1; i < nLinhas; i++) {
-			itens.add(new Item(i, referenciaIterator.next(), quantidadesIterator.next()));
+			itens.add(new Item(i, listaStringIterator.next(), listaNumericaIterator.next()));
 		}
+		return itens;
 
 	}
 
-	private void verificarDuplicata() {
+	private void verificarDuplicata(List<Item> itens ) {
 
 		for (Item item : itens) {
 			if (!naoDuplicados.add(item)) {
@@ -115,22 +136,45 @@ public class PainelModel {
 	
 	}
 
-	private void somarDuplicatas() {
-	HashMap<Item, Double> duplicadosMapa = new HashMap();
-
-		for (Item item : duplicados) {
- 			linhasExcluir.add(item.getLinha());
-			duplicadosMapa.merge(item, item.getQuantidade(), Double::sum);
- 		}
-		for (Item item : naoDuplicados) {
+		private void somarDuplicatas() {
+		HashMap<Item, Double> duplicadosMapa = new HashMap();
+	
+			for (Item item : duplicados) {
+	 			linhasExcluir.add(item.getLinha());
+				duplicadosMapa.merge(item, item.getQuantidade(), Double::sum);
+	 		}
+			for (Item item : naoDuplicados) {
+				
+	        	Double quantidadeDuplicada=duplicadosMapa.get(item);
+	        	if(quantidadeDuplicada!=null) {
+	            	item.addQuantidade(quantidadeDuplicada);
+	            	naoDuplicadoseAtualizados.add(item);
+	        	}
+	 		}
+		}
+		private void atualizarQuantidade(int colunaIndex) {
 			
-        	Double quantidadeDuplicada=duplicadosMapa.get(item);
-        	if(quantidadeDuplicada!=null) {
-            	item.addQuantidade(quantidadeDuplicada);
-            	naoDuplicadoseAtualizados.add(item);
-        	}
+			for(Item item:naoDuplicadoseAtualizados) {
+				Row linha=sheet.getRow(item.getLinha());
+				Cell cell=linha.getCell(colunaIndex);
+				cell.setCellValue(item.getQuantidade());
+ 	     	}
+		}
+		private void excluirLinhasDuplicadas() {
+			for(Integer linha:linhasExcluir) {
+				sheet.removeRow(sheet.getRow(linha));
+			}
+		}
+		private void getSheetAtualizado(File outputFile) {
+			try {
+				OutputStream sheetSaida=new FileOutputStream(outputFile);
+				workbook.write(sheetSaida);
+				sheetSaida.close();
+
+			} catch (IOException e) {
+ 				e.printStackTrace();
+			}
  		}
-	}
 //TODO: FAZER COM QUE AS LINHAS DAS DUPLICATAS SEJAM REMOVIDAS E OS CAMPOS ATUALIZADOS ATUALIZADOS
  
 	private void sheetCriadoVerificacao() {
