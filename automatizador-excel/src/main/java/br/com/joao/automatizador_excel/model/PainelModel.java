@@ -29,19 +29,20 @@ public class PainelModel {
 	Sheet sheet;
 	int quantidadeIndex;
 	int ReferenciaIndex;
+	int nLinhas;
 
-	List<Double> quantidades = new ArrayList<Double>();
+	/*List<Double> quantidades = new ArrayList<Double>();
 	List<String> referencias = new ArrayList<String>();
  	List<Item> duplicados = new ArrayList<Item>();
 	Set<Item> naoDuplicados = new HashSet();
 	List<Integer>linhasExcluir=new ArrayList();
-	List<Item>naoDuplicadoseAtualizados=new ArrayList();
+	List<Item>naoDuplicadoseAtualizados=new ArrayList();*/
 
 	PainelModel(File excel) {
 		carregarExcel(excel);
 	}
 
-	private void carregarExcel(File excel) {
+	public void carregarExcel(File excel) {
 		try {
 			FileInputStream fileInputStream = new FileInputStream(excel);
 			workbook = new XSSFWorkbook(fileInputStream);
@@ -56,6 +57,7 @@ public class PainelModel {
 			throw new IllegalStateException("workbook nao encontrado. Por favor crie o workbook");
 		}
 		sheet = workbook.getSheetAt(index);
+	    nLinhas=sheet.getPhysicalNumberOfRows();
 
 	}
 
@@ -71,8 +73,7 @@ public class PainelModel {
 		return null;
 	}
 
-	int nLinhas = sheet.getPhysicalNumberOfRows();
-
+ 
 	public List<String> iterarColunaString(String ColunaNome,int colunaIndex) {
 		sheetCriadoVerificacao();
 		List<String>rowValores=new ArrayList<String>();
@@ -107,16 +108,16 @@ public class PainelModel {
 		return rowValores;
 
 	}
-	private void getColunaNumerica(String ColunaNome, int colunaIndex, List<Double>listaNumerica) {
+	/*private void getColunaNumerica(String ColunaNome, int colunaIndex, List<Double>listaNumerica) {
 		listaNumerica.addAll(iterarColunaNumerica(ColunaNome,colunaIndex));
 	}
 	private void getColunaString(String ColunaNome, int colunaIndex, List<String>listaString) {
 		listaString.addAll(iterarColunaString(ColunaNome,colunaIndex));
-	}
+	}*/
 
 
-	private List<Item>  criarObjetos(List<Double>listaNumerica,List<String>listaString,List<Item>itens) {
-		
+	private List<Item>  criarObjetos(List<Double>listaNumerica,List<String>listaString) {
+		List<Item>itens=new ArrayList();
 		Iterator<Double> listaNumericaIterator = listaNumerica.iterator();
 		Iterator<String> listaStringIterator = listaString.iterator();
 		for (int i = sheet.getFirstRowNum() + 1; i < nLinhas; i++) {
@@ -126,7 +127,7 @@ public class PainelModel {
 
 	}
 
-	private void verificarDuplicata(List<Item> itens ) {
+	private void verificarDuplicata(List<Item> itens,Set<Item>naoDuplicados,List<Item>duplicados) {
 
 		for (Item item : itens) {
 			if (!naoDuplicados.add(item)) {
@@ -136,7 +137,7 @@ public class PainelModel {
 	
 	}
 
-		private void somarDuplicatas() {
+		private void somarDuplicatas(Set<Item>naoDuplicados,List<Item>duplicados,List<Integer>linhasExcluir,List<Item>naoDuplicadosEAtualizados) {
 		HashMap<Item, Double> duplicadosMapa = new HashMap();
 	
 			for (Item item : duplicados) {
@@ -148,35 +149,49 @@ public class PainelModel {
 	        	Double quantidadeDuplicada=duplicadosMapa.get(item);
 	        	if(quantidadeDuplicada!=null) {
 	            	item.addQuantidade(quantidadeDuplicada);
-	            	naoDuplicadoseAtualizados.add(item);
+	            	naoDuplicadosEAtualizados.add(item);
 	        	}
 	 		}
 		}
-		private void atualizarQuantidade(int colunaIndex) {
+		private void atualizarQuantidade(List<Item>naoDuplicadosEAtualizados,int colunaIndex) {
 			
-			for(Item item:naoDuplicadoseAtualizados) {
+			for(Item item:naoDuplicadosEAtualizados) {
 				Row linha=sheet.getRow(item.getLinha());
 				Cell cell=linha.getCell(colunaIndex);
 				cell.setCellValue(item.getQuantidade());
  	     	}
 		}
-		private void excluirLinhasDuplicadas() {
+		private void excluirLinhasDuplicadas(List<Integer> linhasExcluir) {
 			for(Integer linha:linhasExcluir) {
 				sheet.removeRow(sheet.getRow(linha));
 			}
 		}
-		private void getSheetAtualizado(File outputFile) {
+		private OutputStream getSheetAtualizado(File outputFile) {
 			try {
 				OutputStream sheetSaida=new FileOutputStream(outputFile);
 				workbook.write(sheetSaida);
 				sheetSaida.close();
+				return sheetSaida;
 
 			} catch (IOException e) {
  				e.printStackTrace();
 			}
+			return null;
  		}
-//TODO: FAZER COM QUE AS LINHAS DAS DUPLICATAS SEJAM REMOVIDAS E OS CAMPOS ATUALIZADOS ATUALIZADOS
- 
+		public void eliminarDuplicatasESomarQuantidades(String quantidade,String referencia) {
+			Set<Item>naoDuplicados=new HashSet();
+			List<Item>duplicados=new ArrayList();
+			List<Integer>linhasExcluir=new ArrayList();
+			List<Item>naoDuplicadosEAtualizados=new ArrayList();
+			List<Double>quantidadeColumn=iterarColunaNumerica(quantidade, quantidadeIndex);
+			List<String>referenciaColumn=iterarColunaString(referencia, ReferenciaIndex);
+			List<Item>itens=criarObjetos(quantidadeColumn, referenciaColumn);
+			verificarDuplicata(itens, naoDuplicados, duplicados);
+			somarDuplicatas(naoDuplicados, duplicados, linhasExcluir, naoDuplicadosEAtualizados);
+			atualizarQuantidade(naoDuplicadosEAtualizados, quantidadeIndex);
+			excluirLinhasDuplicadas(linhasExcluir);
+ 		}
+  
 	private void sheetCriadoVerificacao() {
 		if (sheet == null) {
 			throw new IllegalStateException("A planilha não foi criada. Chame o método criarSheet primeiro.");
