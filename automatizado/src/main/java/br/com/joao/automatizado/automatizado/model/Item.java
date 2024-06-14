@@ -1,4 +1,4 @@
-package br.com.joao.automatizador_excel.model;
+package br.com.joao.automatizado.automatizado.model;
 
 import java.util.Collection;
 import java.util.Objects;

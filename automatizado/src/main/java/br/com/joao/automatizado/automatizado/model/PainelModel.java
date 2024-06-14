@@ -1,15 +1,11 @@
-package br.com.joao.automatizador_excel.model;
+package br.com.joao.automatizado.automatizado.model;
 
 import java.io.File;
-
-
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
