@@ -34,7 +34,7 @@ public class PainelModel {
 	List<Integer>linhasExcluir=new ArrayList();
 	List<Item>naoDuplicadoseAtualizados=new ArrayList();*/
 
-	PainelModel(File excel) {
+	public PainelModel(File excel) {
 		carregarExcel(excel);
 	}
 
@@ -162,12 +162,13 @@ public class PainelModel {
 				sheet.removeRow(sheet.getRow(linha));
 			}
 		}
-		private OutputStream getSheetAtualizado(File outputFile) {
+		public File getSheetAtualizado( ) {
 			try {
-				OutputStream sheetSaida=new FileOutputStream(outputFile);
+				File fileTemporario = File.createTempFile("temp_sheet", ".xlsx");;
+				OutputStream sheetSaida=new FileOutputStream(fileTemporario);
 				workbook.write(sheetSaida);
 				sheetSaida.close();
-				return sheetSaida;
+				return fileTemporario;
 
 			} catch (IOException e) {
  				e.printStackTrace();

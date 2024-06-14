@@ -11,29 +11,32 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import java.nio.file.*;
 
 public class FileChooserTela  {
-	File file;
+	File fileEscolhido;
 	FileChooser fileChooser;
 	public void buscarArquivo( ) {
 		 
-				  fileChooser=new FileChooser();
+				fileChooser=new FileChooser();
 				fileChooser.setTitle("Selecione o excel");
 				fileChooser.getExtensionFilters().add(new ExtensionFilter("XLSX","*.xlsx"));
-				file=fileChooser.showOpenDialog(null);
+				fileEscolhido=fileChooser.showOpenDialog(null);
 	 		
 	 	
 	}
 	public void salvarArquivo() {
-		if(file!=null) {
+		if(fileEscolhido!=null) {
 			 
 			File fileSalvo=fileChooser.showSaveDialog(null);
 			if(fileSalvo!=null) {
  				try {
-					Files.copy(Paths.get(file.getAbsolutePath()) ,Paths.get(fileSalvo.getAbsolutePath()));
+					Files.copy(Paths.get(fileEscolhido.getAbsolutePath()) ,Paths.get(fileSalvo.getAbsolutePath()));
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
 		}
 	}
+	public File getFileEscolhido() {
+		return fileEscolhido;
+	}
+	
 }
