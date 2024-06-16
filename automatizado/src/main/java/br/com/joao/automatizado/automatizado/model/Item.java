@@ -6,9 +6,9 @@ import java.util.Objects;
 public class Item {
 private int linha;
 private String referencia;
-private Double quantidade;
+private double quantidade;
 
-public Item(int linha, String referencia, Double quantidade) {
+public Item(int linha, String referencia, double quantidade) {
 	this.linha = linha;
 	this.referencia = referencia;
 	this.quantidade = quantidade;
@@ -28,11 +28,11 @@ public void setReferencia(String referencia) {
 public double getQuantidade() {
 	return quantidade;
 }
-public void setQuantidade(Double quantidade) {
+public void setQuantidade(double quantidade) {
 	this.quantidade = quantidade;
 }
-public void addQuantidade(Double quantidade) {
-	 this.quantidade=quantidade;
+public void addQuantidade(double quantidade) {
+	 this.quantidade+=quantidade;
 }
 @Override
 public int hashCode() {
