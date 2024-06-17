@@ -1,11 +1,13 @@
 package br.com.joao.automatizado.automatizado.model;
 
 import java.io.File;
+
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -22,7 +24,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-public class PainelModel {
+public class PainelModel implements Runnable {
 	Workbook workbook;
 	Sheet sheet;
 	File excel;
@@ -31,7 +33,7 @@ public class PainelModel {
 	int primeiraLinha;
 	int ultimaLinha;
 	int primeiraColuna;
-
+	 
 	/*
 	 * List<Double> quantidades = new ArrayList<Double>(); List<String> referencias
 	 * = new ArrayList<String>(); List<Item> duplicados = new ArrayList<Item>();
@@ -75,13 +77,13 @@ public class PainelModel {
 		sheetCriadoVerificacao();
 		primeiraLinha = encontrarPrimeiraLinha();
 		ultimaLinha = encontrarUltimaLinha();
-		System.out.println("Numero de linhas do excel" + ultimaLinha);
-		System.out.println("Primeira linha do excel:" + primeiraLinha);
+		//System.out.println("Numero de linhas do excel" + ultimaLinha);
+		//System.out.println("Primeira linha do excel:" + primeiraLinha);
 
 		try {
 			for (Cell celula : sheet.getRow(primeiraLinha)) {
 				if (celula.getStringCellValue().strip().equals(equivalencia)) {
-					System.out.println("oi");
+					//System.out.println("oi");
 					return celula.getColumnIndex();
 				}
 			}
@@ -95,20 +97,18 @@ public class PainelModel {
 
 	private Integer encontrarPrimeiraLinha() {
 		for (int i = 0; i < sheet.getLastRowNum(); i++) {
-			Row linha = sheet.getRow(i );
-			
-				for (int j = 0; j < linha.getLastCellNum(); j++) {
-					if (linha.getCell(j).getCellType() != CellType.BLANK == true
-							&& linha.getCell(j + 1).getCellType() != CellType.BLANK == true
-							&& linha.getCell(j + 2).getCellType() != CellType.BLANK == true
-							&& linha.getCell(j + 3).getCellType() != CellType.BLANK == true) {
-						primeiraColuna = j;
-						return linha.getRowNum();
-					
+			Row linha = sheet.getRow(i);
+
+			for (int j = 0; j < linha.getLastCellNum(); j++) {
+				if (linha.getCell(j).getCellType() != CellType.BLANK == true
+						&& linha.getCell(j + 1).getCellType() != CellType.BLANK == true
+						&& linha.getCell(j + 2).getCellType() != CellType.BLANK == true
+						&& linha.getCell(j + 3).getCellType() != CellType.BLANK == true) {
+					primeiraColuna = j;
+					return linha.getRowNum();
 
 				}
 			}
-			 
 
 		}
 		return null;
@@ -117,16 +117,14 @@ public class PainelModel {
 	private Integer encontrarUltimaLinha() {
 		for (int i = primeiraLinha + 1; i < sheet.getLastRowNum(); i++) {
 			Row linha = sheet.getRow(i);
-		
-				if (linha.getCell(primeiraColuna).getCellType() == CellType.BLANK == true
-						&& linha.getCell(primeiraColuna).getCellType() == CellType.BLANK == true
-						&& linha.getCell(primeiraColuna).getCellType() == CellType.BLANK == true
-						&& linha.getCell(primeiraColuna).getCellType() == CellType.BLANK == true) {
-					return linha.getRowNum() - 1;
-				
-				
+
+			if (linha.getCell(primeiraColuna).getCellType() == CellType.BLANK == true
+					&& linha.getCell(primeiraColuna).getCellType() == CellType.BLANK == true
+					&& linha.getCell(primeiraColuna).getCellType() == CellType.BLANK == true
+					&& linha.getCell(primeiraColuna).getCellType() == CellType.BLANK == true) {
+				return linha.getRowNum() - 1;
+
 			}
-			 
 
 		}
 		return sheet.getLastRowNum();
@@ -137,9 +135,10 @@ public class PainelModel {
 		List<String> rowValores = new ArrayList<String>();
 		try {
 			colunaIndex = getColunaIndice(ColunaNome);
-			System.out.println("indice coluna referencia" + colunaIndex);
+			//System.out.println("indice coluna referencia" + colunaIndex);
 			for (int i = primeiraLinha + 1; i < ultimaLinha; i++) {
-				if (sheet.getRow(i) != null && sheet.getRow(i).getCell(colunaIndex) != null&&sheet.getRow(i).getCell(colunaIndex).getCellType()!=CellType.BLANK) {
+				if (sheet.getRow(i) != null && sheet.getRow(i).getCell(colunaIndex) != null
+						&& sheet.getRow(i).getCell(colunaIndex).getCellType() != CellType.BLANK) {
 					rowValores.add(sheet.getRow(i).getCell(colunaIndex).getStringCellValue().strip());
 				}
 			}
@@ -154,20 +153,17 @@ public class PainelModel {
 		return null;
 	}
 
-	/*public void criarCelulaCasoNula() {
-		for (int i = 0; i < ultimaLinha; i++) {
-			Row linha = sheet.getRow(i);
-			for (int j = 0; j < linha.getLastCellNum(); i++) {
-				linha.getCell(j, MissingCellPolicy.RETURN_NULL_AND_BLANK);
-			}
-		}
-	}*/
+	/*
+	 * public void criarCelulaCasoNula() { for (int i = 0; i < ultimaLinha; i++) {
+	 * Row linha = sheet.getRow(i); for (int j = 0; j < linha.getLastCellNum(); i++)
+	 * { linha.getCell(j, MissingCellPolicy.RETURN_NULL_AND_BLANK); } } }
+	 */
 
 	public List<Double> iterarColunaNumerica(String ColunaNome, int colunaIndex) {
 		sheetCriadoVerificacao();
 		List<Double> rowValores = new ArrayList<Double>();
 		try {
-			System.out.println("indice coluna quantidade" + colunaIndex);
+			//System.out.println("indice coluna quantidade" + colunaIndex);
 
 			for (int i = primeiraLinha + 1; i <= ultimaLinha; i++) {
 				if (sheet.getRow(i) != null && sheet.getRow(i).getCell(colunaIndex) != null) {
@@ -182,8 +178,8 @@ public class PainelModel {
 							rowValores.add(valorCelula.getNumberValue());
 						}
 					} else {
-						System.out.println("Formula nao resolvida" + "Celula linha: " + celula.getRowIndex()
-								+ "coluna: " + celula.getColumnIndex());
+					//	System.out.println("Formula nao resolvida" + "Celula linha: " + celula.getRowIndex()
+								//+ "coluna: " + celula.getColumnIndex());
 					}
 
 				}
@@ -211,7 +207,7 @@ public class PainelModel {
 
 	private List<Item> criarObjetos(List<Double> listaNumerica, List<String> listaString) {
 		List<Item> itens = new ArrayList<Item>();
-		 
+
 		Iterator<Double> listaNumericaIterator = listaNumerica.iterator();
 		Iterator<String> listaStringIterator = listaString.iterator();
 		for (int i = primeiraLinha + 1; i < ultimaLinha; i++) {
@@ -228,7 +224,7 @@ public class PainelModel {
 				duplicados.add(item);
 			}
 		}
-		System.out.println("Nao duplicados");
+	/*	System.out.println("Nao duplicados");
 		for (Item item : naoDuplicados) {
 			System.out.println("A linha deste item e " + item.getLinha() + "a referencia deste item e "
 					+ item.getReferencia() + "a quantidade deste item e " + item.getQuantidade());
@@ -237,7 +233,7 @@ public class PainelModel {
 		for (Item item : duplicados) {
 			System.out.println("A linha deste item e " + item.getLinha() + "a referencia deste item e "
 					+ item.getReferencia() + "a quantidade deste item e " + item.getQuantidade());
-		}
+		}*/
 	}
 
 	private void somarDuplicatas(Set<Item> naoDuplicados, List<Item> duplicados, List<Integer> linhasExcluir,
@@ -249,13 +245,12 @@ public class PainelModel {
 			linhasExcluir.add(item.getLinha());
 			duplicadosMapa.merge(item, item.getQuantidade(), Double::sum);
 		}
-		
+
 		for (Item item : naoDuplicados) {
 			quantidadeDuplicada = duplicadosMapa.get(item);
 			if (quantidadeDuplicada != null) {
 				item.addQuantidade(quantidadeDuplicada);
 				naoDuplicadosEAtualizados.add(item);
-			
 
 			}
 		}
@@ -264,7 +259,7 @@ public class PainelModel {
 	private void atualizarQuantidade(List<Item> naoDuplicadosEAtualizados, int colunaIndex) {
 		for (Item item : naoDuplicadosEAtualizados) {
 			sheet.getRow(item.getLinha()).getCell(colunaIndex).setCellValue(item.getQuantidade());
-			System.out.println("quantidade do item: " + item.getLinha() + ": " + item.getQuantidade());
+			//System.out.println("quantidade do item: " + item.getLinha() + ": " + item.getQuantidade());
 
 			/*
 			 * Row linha=sheet.getRow(item.getLinha()); Cell
@@ -276,16 +271,40 @@ public class PainelModel {
 	}
 
 	private void excluirLinhasDuplicadas(List<Integer> linhasExcluir) {
-		int controle=-1;
+	    Collections.sort(linhasExcluir, Collections.reverseOrder());
+		int nLinha;
+		int ultimaLinha;
 		for (Integer linha : linhasExcluir) {
-			int proximaLinha=linha+1;
-			sheet.removeRow(sheet.getRow(linha));
-			
-			sheet.shiftRows(proximaLinha ,ultimaLinha  ,-1 );
-			controle--;
-
+			Row row = sheet.getRow(linha);
+			if(row!=null) {
+			for (Cell cell : row) {
+				 
+				if (cell.getCellType() == CellType.FORMULA) {
+					cell.removeFormula();
+					 
+					}
+			}
+				 
+				
+			}
+			 nLinha=row.getRowNum();
+			 ultimaLinha=sheet.getLastRowNum();
+			 System.out.println(ultimaLinha);
+			 if(nLinha>=0&&nLinha<ultimaLinha) {
+				 sheet.shiftRows(nLinha+1, ultimaLinha, -1);
+			 }
+		 
+ 
 		}
- 	}
+		//linhasExcluir.forEach(x->{System.out.println(x);});
+
+
+	}
+
+	/*private void pegarQuantLinhasExcluir(List<Integer> linhasExcluir,int referenciaIndex ) {
+ 	 
+
+	}*/
 
 	public File getSheetAtualizado() {
 		try {
@@ -313,9 +332,10 @@ public class PainelModel {
 		List<Item> itens = criarObjetos(quantidadeColumn, referenciaColumn);
 		verificarDuplicata(itens, naoDuplicados, duplicados);
 		somarDuplicatas(naoDuplicados, duplicados, linhasExcluir, naoDuplicadosEAtualizados);
-		System.out.println("quantidade index" + quantidadeIndex);
+		//System.out.println("quantidade index" + quantidadeIndex);
 		atualizarQuantidade(naoDuplicadosEAtualizados, quantidadeIndex);
 		excluirLinhasDuplicadas(linhasExcluir);
+     //	pegarQuantLinhasExcluir(linhasExcluir,ReferenciaIndex);
 	}
 
 	private void sheetCriadoVerificacao() {
@@ -323,5 +343,10 @@ public class PainelModel {
 			throw new IllegalStateException("A planilha não foi criada. Chame o método criarSheet primeiro.");
 		}
 
+	}
+
+	@Override
+	public void run() {
+ 		
 	}
 }
