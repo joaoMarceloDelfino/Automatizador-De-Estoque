@@ -20,10 +20,10 @@ PainelPrincipal painelPrincipal=new PainelPrincipal();
 		primaryStage.setScene(cena);
 		primaryStage.show();
 	}
-
 	public static void main(String[] args) {
-		Application.launch(args);
-
+		launch(args);
 	}
+
+	
 
 }

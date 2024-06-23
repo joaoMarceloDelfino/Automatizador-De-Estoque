@@ -19,12 +19,11 @@ import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.CellValue;
 import org.apache.poi.ss.usermodel.FormulaEvaluator;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Row.MissingCellPolicy;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-public class PainelModel implements Runnable {
+public class PainelModel  {
 	Workbook workbook;
 	Sheet sheet;
 	File excel;
@@ -345,8 +344,5 @@ public class PainelModel implements Runnable {
 
 	}
 
-	@Override
-	public void run() {
- 		
-	}
+	
 }
