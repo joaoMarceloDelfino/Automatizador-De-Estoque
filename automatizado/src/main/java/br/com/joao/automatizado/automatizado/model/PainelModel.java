@@ -27,18 +27,10 @@ public class PainelModel  {
 	Workbook workbook;
 	Sheet sheet;
 	File excel;
-	int quantidadeIndex;
-	int ReferenciaIndex;
-	int primeiraLinha;
+  	int primeiraLinha;
 	int ultimaLinha;
 	int primeiraColuna;
-	 
-	/*
-	 * List<Double> quantidades = new ArrayList<Double>(); List<String> referencias
-	 * = new ArrayList<String>(); List<Item> duplicados = new ArrayList<Item>();
-	 * Set<Item> naoDuplicados = new HashSet(); List<Integer>linhasExcluir=new
-	 * ArrayList(); List<Item>naoDuplicadoseAtualizados=new ArrayList();
-	 */
+ 
 
 	public PainelModel() {
 	}
@@ -62,20 +54,15 @@ public class PainelModel  {
 			throw new IllegalStateException("workbook nao encontrado. Por favor crie o workbook");
 		}
 		sheet = workbook.getSheetAt(index);
+		primeiraLinha = encontrarPrimeiraLinha();
+		ultimaLinha = encontrarUltimaLinha();
 
 	}
-	/*
-	 * private void limparLinhasVazias(){ for(Row linha:sheet) { for(Cell
-	 * celula:linha) { if(celula!=null && celula.getCellType() != CellType.BLANK) {
-	 * break; }
-	 * 
-	 * } sheet.removeRow(linha); } }
-	 */
+	 
 
 	private Integer getColunaIndice(String equivalencia) {
 		sheetCriadoVerificacao();
-		primeiraLinha = encontrarPrimeiraLinha();
-		ultimaLinha = encontrarUltimaLinha();
+		 
 		//System.out.println("Numero de linhas do excel" + ultimaLinha);
 		//System.out.println("Primeira linha do excel:" + primeiraLinha);
 
@@ -83,6 +70,7 @@ public class PainelModel  {
 			for (Cell celula : sheet.getRow(primeiraLinha)) {
 				if (celula.getStringCellValue().strip().equals(equivalencia)) {
 					//System.out.println("oi");
+					System.out.println("index="+celula.getColumnIndex());
 					return celula.getColumnIndex();
 				}
 			}
@@ -96,6 +84,7 @@ public class PainelModel  {
 
 	private Integer encontrarPrimeiraLinha() {
 		for (int i = 0; i < sheet.getLastRowNum(); i++) {
+			if(sheet.getRow(i)!=null) {
 			Row linha = sheet.getRow(i);
 
 			for (int j = 0; j < linha.getLastCellNum(); j++) {
@@ -108,13 +97,14 @@ public class PainelModel  {
 
 				}
 			}
+			}
 
 		}
 		return null;
 	}
 
 	private Integer encontrarUltimaLinha() {
-		for (int i = primeiraLinha + 1; i < sheet.getLastRowNum(); i++) {
+		for (int i = primeiraLinha ; i < sheet.getLastRowNum(); i++) {
 			Row linha = sheet.getRow(i);
 
 			if (linha.getCell(primeiraColuna).getCellType() == CellType.BLANK == true
@@ -129,13 +119,12 @@ public class PainelModel  {
 		return sheet.getLastRowNum();
 	}
 
-	public List<String> iterarColunaString(String ColunaNome, int colunaIndex) {
+	public List<String> iterarColunaString(String colunaNome, int colunaIndex) {
 		sheetCriadoVerificacao();
 		List<String> rowValores = new ArrayList<String>();
-		try {
-			colunaIndex = getColunaIndice(ColunaNome);
-			//System.out.println("indice coluna referencia" + colunaIndex);
-			for (int i = primeiraLinha + 1; i < ultimaLinha; i++) {
+ 		try {
+ 			//System.out.println("indice coluna referencia" + colunaIndex);
+			for (int i = primeiraLinha+1; i < ultimaLinha; i++) {
 				if (sheet.getRow(i) != null && sheet.getRow(i).getCell(colunaIndex) != null
 						&& sheet.getRow(i).getCell(colunaIndex).getCellType() != CellType.BLANK) {
 					rowValores.add(sheet.getRow(i).getCell(colunaIndex).getStringCellValue().strip());
@@ -151,20 +140,37 @@ public class PainelModel  {
 		}
 		return null;
 	}
+	
+	public List<String> iterarColunaString(int valor) {
+		sheetCriadoVerificacao();
+		List<String> rowValores = new ArrayList<String>();
+ 		try {
+ 			for (int i = primeiraLinha ; i < ultimaLinha; i++) {
+				if (sheet.getRow(i) != null && sheet.getRow(i).getCell(valor) != null
+						&& sheet.getRow(i).getCell(valor).getCellType() != CellType.BLANK) {
+					rowValores.add(sheet.getRow(i).getCell(valor).getStringCellValue().strip());
+				}
+			}
+			if (rowValores.isEmpty()) {
+				throw new IllegalArgumentException();
+			}
+			return rowValores;
 
-	/*
-	 * public void criarCelulaCasoNula() { for (int i = 0; i < ultimaLinha; i++) {
-	 * Row linha = sheet.getRow(i); for (int j = 0; j < linha.getLastCellNum(); i++)
-	 * { linha.getCell(j, MissingCellPolicy.RETURN_NULL_AND_BLANK); } } }
-	 */
+		} catch (IllegalArgumentException e) {
+			System.err.println("Coluna nao encontrada");
+		}
+		return null;
+	}
 
-	public List<Double> iterarColunaNumerica(String ColunaNome, int colunaIndex) {
+	 
+
+	public List<Double> iterarColunaNumerica(String colunaNome, int colunaIndex ) {
 		sheetCriadoVerificacao();
 		List<Double> rowValores = new ArrayList<Double>();
-		try {
+ 		try {
 			//System.out.println("indice coluna quantidade" + colunaIndex);
-
-			for (int i = primeiraLinha + 1; i <= ultimaLinha; i++) {
+ 
+			for (int i = primeiraLinha+1; i < ultimaLinha; i++) {
 				if (sheet.getRow(i) != null && sheet.getRow(i).getCell(colunaIndex) != null) {
 					Cell celula = sheet.getRow(i).getCell(colunaIndex);
 
@@ -195,21 +201,52 @@ public class PainelModel  {
 		return null;
 
 	}
-	/*
-	 * private void getColunaNumerica(String ColunaNome, int colunaIndex,
-	 * List<Double>listaNumerica) {
-	 * listaNumerica.addAll(iterarColunaNumerica(ColunaNome,colunaIndex)); } private
-	 * void getColunaString(String ColunaNome, int colunaIndex,
-	 * List<String>listaString) {
-	 * listaString.addAll(iterarColunaString(ColunaNome,colunaIndex)); }
-	 */
+	public List<Double> iterarColunaNumerica(int valor) {
+		sheetCriadoVerificacao();		
+		List<Double> rowValores = new ArrayList<Double>();
+		try {
+			//System.out.println("indice coluna quantidade" + colunaIndex);
+			 
 
-	private List<Item> criarObjetos(List<Double> listaNumerica, List<String> listaString) {
+			for (int i = primeiraLinha ; i < ultimaLinha; i++) {
+				if (sheet.getRow(i) != null && sheet.getRow(i).getCell(valor) != null) {
+					Cell celula = sheet.getRow(i).getCell(valor);
+
+					if (celula.getCellType() == CellType.NUMERIC) {
+						rowValores.add(celula.getNumericCellValue());
+					} else if (celula.getCellType() == CellType.FORMULA) {
+						FormulaEvaluator evaluador = workbook.getCreationHelper().createFormulaEvaluator();
+						CellValue valorCelula = evaluador.evaluate(celula);
+						if (valorCelula.getCellType() == CellType.NUMERIC) {
+							rowValores.add(valorCelula.getNumberValue());
+						}
+					} else {
+					//	System.out.println("Formula nao resolvida" + "Celula linha: " + celula.getRowIndex()
+								//+ "coluna: " + celula.getColumnIndex());
+					}
+
+				}
+			}
+			if (rowValores.isEmpty()) {
+				throw new IllegalArgumentException();
+			}
+			return rowValores;
+
+		} catch (Exception e) {
+			System.err.println("Coluna nao encontrada");
+			System.out.println(e.getMessage());
+		}
+		return null;
+
+	}
+ 
+
+	private List<Item> criarObjetos(List<Double> listaNumerica, List<String> listaString, int adicaoaPrimeiraLinha) {
 		List<Item> itens = new ArrayList<Item>();
 
 		Iterator<Double> listaNumericaIterator = listaNumerica.iterator();
 		Iterator<String> listaStringIterator = listaString.iterator();
-		for (int i = primeiraLinha + 1; i < ultimaLinha; i++) {
+		for (int i = primeiraLinha+adicaoaPrimeiraLinha ; i < ultimaLinha; i++) {
 			itens.add(new Item(i, listaStringIterator.next(), listaNumericaIterator.next()));
 		}
 		return itens;
@@ -259,13 +296,7 @@ public class PainelModel  {
 		for (Item item : naoDuplicadosEAtualizados) {
 			sheet.getRow(item.getLinha()).getCell(colunaIndex).setCellValue(item.getQuantidade());
 			//System.out.println("quantidade do item: " + item.getLinha() + ": " + item.getQuantidade());
-
-			/*
-			 * Row linha=sheet.getRow(item.getLinha()); Cell
-			 * cell=linha.getCell(colunaIndex);
-			 * System.out.println("quantidade do item: "+item.getLinha()+": "+item.
-			 * getQuantidade()); ;
-			 */
+ 
 		}
 	}
 
@@ -295,15 +326,11 @@ public class PainelModel  {
 		 
  
 		}
-		//linhasExcluir.forEach(x->{System.out.println(x);});
-
+ 
 
 	}
 
-	/*private void pegarQuantLinhasExcluir(List<Integer> linhasExcluir,int referenciaIndex ) {
- 	 
-
-	}*/
+	 
 
 	public File getSheetAtualizado() {
 		try {
@@ -320,15 +347,21 @@ public class PainelModel  {
 		return null;
 	}
 
-	public void eliminarDuplicatasESomarQuantidades(String quantidade, String referencia) {
-		quantidadeIndex = getColunaIndice(quantidade);
+	public void eliminarDuplicatasESomarQuantidades(String quantidadeNome, String referenciaNome) {
+		int quantidadeIndex=0;
+		int referenciaIndex = 0;
+		quantidadeIndex = getColunaIndice(quantidadeNome);
+		referenciaIndex = getColunaIndice(referenciaNome);
 		Set<Item> naoDuplicados = new HashSet<Item>();
 		List<Item> duplicados = new ArrayList<Item>();
 		List<Integer> linhasExcluir = new ArrayList<Integer>();
 		List<Item> naoDuplicadosEAtualizados = new ArrayList<Item>();
-		List<String> referenciaColumn = iterarColunaString(referencia, ReferenciaIndex);
-		List<Double> quantidadeColumn = iterarColunaNumerica(quantidade, quantidadeIndex);
-		List<Item> itens = criarObjetos(quantidadeColumn, referenciaColumn);
+		List<String> referenciaColumn = iterarColunaString(referenciaNome, referenciaIndex);
+		List<Double> quantidadeColumn = iterarColunaNumerica(quantidadeNome, quantidadeIndex);
+		System.out.println("Primeira linha"+primeiraLinha);
+		System.out.println("a coluna da referencia e:"+referenciaIndex );
+		System.out.println("a coluna da quantidade e:"+quantidadeIndex );
+		List<Item> itens = criarObjetos(quantidadeColumn, referenciaColumn,1);
 		verificarDuplicata(itens, naoDuplicados, duplicados);
 		somarDuplicatas(naoDuplicados, duplicados, linhasExcluir, naoDuplicadosEAtualizados);
 		//System.out.println("quantidade index" + quantidadeIndex);
@@ -336,6 +369,22 @@ public class PainelModel  {
 		excluirLinhasDuplicadas(linhasExcluir);
      //	pegarQuantLinhasExcluir(linhasExcluir,ReferenciaIndex);
 	}
+	public void eliminarDuplicatasESomarQuantidades(int quantidadeColuna, int referenciaColuna ) {
+ 		int quantidadeIndex=quantidadeColuna-1;
+		int referenciaIndex=referenciaColuna-1;
+		Set<Item> naoDuplicados = new HashSet<Item>();
+		List<Item> duplicados = new ArrayList<Item>();
+		List<Integer> linhasExcluir = new ArrayList<Integer>();
+		List<Item> naoDuplicadosEAtualizados = new ArrayList<Item>();
+ 		List<String> referenciaColumn = iterarColunaString(referenciaIndex);
+  		List<Double> quantidadeColumn = iterarColunaNumerica(quantidadeIndex);
+ 		List<Item> itens = criarObjetos(quantidadeColumn, referenciaColumn,0);
+		verificarDuplicata(itens, naoDuplicados, duplicados);
+		somarDuplicatas(naoDuplicados, duplicados, linhasExcluir, naoDuplicadosEAtualizados);
+ 		atualizarQuantidade(naoDuplicadosEAtualizados, quantidadeIndex);
+		excluirLinhasDuplicadas(linhasExcluir);
+ 	}
+	
 
 	private void sheetCriadoVerificacao() {
 		if (sheet == null) {
