@@ -31,18 +31,27 @@ public class FileChooserTela  {
 	 		
 	 	
 	}
-	public void salvarArquivo() {
+	public void salvarArquivoExcel(File arquivoSalvar) {
 		if(fileEscolhido!=null) {
 			 
 			File fileSalvo=fileChooser.showSaveDialog(null);
 			if(fileSalvo!=null) {
  				try {
-					Files.copy(new FileInputStream(painelModel.getSheetAtualizado()) ,Paths.get(fileSalvo.getAbsolutePath()));
+					Files.copy(new FileInputStream(arquivoSalvar) ,Paths.get(fileSalvo.getAbsolutePath()));
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 		}
+	}
+	public void paraExtensaoTxt() {
+		fileChooser.setTitle("Salvar o txt");
+		fileChooser.getExtensionFilters().clear();
+		fileChooser.getExtensionFilters().add(new ExtensionFilter("TXT","*.txt"));
+	}
+	public void paraExtensaoXlsx() {
+		fileChooser.setTitle("Salvar o txt");
+		fileChooser.getExtensionFilters().add(new ExtensionFilter("XLSX","*.xlsx"));
 	}
 	public File getFileEscolhido() {
 		return fileEscolhido;

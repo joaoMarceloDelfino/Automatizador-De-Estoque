@@ -1,8 +1,7 @@
 package br.com.joao.automatizado.automatizado.controll;
 
  
-import java.util.HashMap;
-import java.util.Map;
+import java.io.File;
 
 import br.com.joao.automatizado.automatizado.model.PainelModel;
 import br.com.joao.automatizado.automatizado.view.FileChooserTela;
@@ -44,8 +43,9 @@ public class PainelControll {
 
 	private void setListeners() {
 		 painelPrincipal.setBotaoEscolherListener(x->{fileChooserTela.buscarArquivo();painelPrincipal.setTextBoxPath(fileChooserTela.getFileEscolhido());});
- 		 painelPrincipal.setBotaoEnviarListener(x->{processarExcel();fileChooserTela.salvarArquivo();});
+ 		 painelPrincipal.setBotaoEnviarListener(x->{processarExcel();fileChooserTela.salvarArquivoExcel(painelModel.getSheetAtualizado());painelPrincipal.adicionarTxtInterface();});
  		 painelPrincipal.setOpcaoDeProcuraListener(x->{ComboBoxOpcoes();});
+ 		 painelPrincipal.setTxtBotaoListener(x->{fileChooserTela.paraExtensaoTxt();fileChooserTela.salvarArquivoExcel(painelModel.gerarTxt(painelPrincipal.getBotaoDataText()));});
 	}
 	private void ComboBoxOpcoes() {
 		if(painelPrincipal.getOpcaoDeProcura().getValue().equals("Por nome") ){
@@ -68,6 +68,7 @@ public class PainelControll {
 		     
 		}
 	}
+	 
 	private ChangeListener<String> setAceitarApenasNumeros(TextField textField) {
  		ChangeListener<String> changeListener=new ChangeListener<String>() {
             

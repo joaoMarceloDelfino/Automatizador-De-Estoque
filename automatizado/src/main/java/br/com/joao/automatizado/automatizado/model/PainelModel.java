@@ -1,11 +1,13 @@
 package br.com.joao.automatizado.automatizado.model;
 
+import java.io.BufferedWriter;
 import java.io.File;
-
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -23,6 +25,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import br.com.joao.automatizado.automatizado.view.PainelPrincipal;
+
 public class PainelModel  {
 	Workbook workbook;
 	Sheet sheet;
@@ -30,10 +34,15 @@ public class PainelModel  {
   	int primeiraLinha;
 	int ultimaLinha;
 	int primeiraColuna;
+	File txt;
+	Writer escritor;
+	BufferedWriter escritorBuffer;
+	List<Item>itensAtualizados;
+	
  
 
 	public PainelModel() {
-	}
+ 	}
 
 	public void setExcel(File excel) {
 		this.excel = excel;
@@ -330,7 +339,7 @@ public class PainelModel  {
 
 	}
 
-	 
+	
 
 	public File getSheetAtualizado() {
 		try {
@@ -346,6 +355,30 @@ public class PainelModel  {
 		}
 		return null;
 	}
+	public File gerarTxt(String dataEstoque) {
+		try {
+			txt=new File("arquivo.txt");
+			escritor=new FileWriter(txt);
+			escritorBuffer=new BufferedWriter(escritor);
+			Iterator<Item>itensAtualizadosIterator=itensAtualizados.iterator();
+			while(itensAtualizadosIterator.hasNext()) {
+			Item itemAtual=itensAtualizadosIterator.next();
+ 			escritorBuffer.write("K200||");
+ 			escritorBuffer.write(dataEstoque+"||");
+            escritorBuffer.write(itemAtual.getReferencia()+"||");
+            escritorBuffer.write(itemAtual.getQuantidade()+"||");
+            escritorBuffer.newLine();
+			}
+			escritorBuffer.flush();
+			escritorBuffer.close();
+			escritor.close();
+          return txt;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+       return null;
+	}
+	
 
 	public void eliminarDuplicatasESomarQuantidades(String quantidadeNome, String referenciaNome) {
 		int quantidadeIndex=0;
@@ -364,10 +397,15 @@ public class PainelModel  {
 		List<Item> itens = criarObjetos(quantidadeColumn, referenciaColumn,1);
 		verificarDuplicata(itens, naoDuplicados, duplicados);
 		somarDuplicatas(naoDuplicados, duplicados, linhasExcluir, naoDuplicadosEAtualizados);
-		//System.out.println("quantidade index" + quantidadeIndex);
 		atualizarQuantidade(naoDuplicadosEAtualizados, quantidadeIndex);
 		excluirLinhasDuplicadas(linhasExcluir);
-     //	pegarQuantLinhasExcluir(linhasExcluir,ReferenciaIndex);
+		primeiraLinha=encontrarPrimeiraLinha();
+		ultimaLinha=encontrarUltimaLinha();
+		referenciaColumn = iterarColunaString(referenciaNome, referenciaIndex);
+	    quantidadeColumn = iterarColunaNumerica(quantidadeNome, quantidadeIndex);
+	    itensAtualizados=criarObjetos(quantidadeColumn, referenciaColumn,1);
+		
+		
 	}
 	public void eliminarDuplicatasESomarQuantidades(int quantidadeColuna, int referenciaColuna ) {
  		int quantidadeIndex=quantidadeColuna-1;
@@ -383,6 +421,11 @@ public class PainelModel  {
 		somarDuplicatas(naoDuplicados, duplicados, linhasExcluir, naoDuplicadosEAtualizados);
  		atualizarQuantidade(naoDuplicadosEAtualizados, quantidadeIndex);
 		excluirLinhasDuplicadas(linhasExcluir);
+		primeiraLinha=encontrarPrimeiraLinha();
+		ultimaLinha=encontrarUltimaLinha();
+		referenciaColumn = iterarColunaString(referenciaIndex);
+	    quantidadeColumn = iterarColunaNumerica(quantidadeIndex);
+	    itensAtualizados=criarObjetos(quantidadeColumn, referenciaColumn,0);
  	}
 	
 

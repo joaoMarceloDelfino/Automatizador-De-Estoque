@@ -7,7 +7,10 @@ public class Item {
 private int linha;
 private String referencia;
 private double quantidade;
-
+public Item( String referencia, double quantidade) {
+	this.referencia = referencia;
+	this.quantidade = quantidade;
+}
 public Item(int linha, String referencia, double quantidade) {
 	this.linha = linha;
 	this.referencia = referencia;

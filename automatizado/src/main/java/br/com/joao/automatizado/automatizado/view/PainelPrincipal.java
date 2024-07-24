@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
@@ -28,7 +29,10 @@ public class PainelPrincipal {
 	private Label referenciaLabel=new Label("Insira o nome da coluna 'referência':");;
 	private HBox referenciaBox;
  	private VBox painel;
- 
+ 	private Label dataLabel;
+ 	private DatePicker botaoData;
+ 	private HBox dataBox;
+ 	private Button criarTxtButton=new Button("criar txt");
 	public PainelPrincipal() {
 		InicializarPainel();
 	}
@@ -58,11 +62,19 @@ public class PainelPrincipal {
 	public void setOpcaoDeProcuraListener(EventHandler<ActionEvent> acao) {
 		opcaoDeProcura.setOnAction(acao);
 	}
-	public void setTextFieldsListeners(EventHandler<ActionEvent> acao) {
-		 
+	public void setTxtBotaoListener(EventHandler<ActionEvent> acao) {
+		criarTxtButton.setOnAction(acao);
 	}
 	public void setTextBoxPath(File arquivo) {
 		caminhoArquivoField.setText(arquivo.getAbsolutePath());
+	}
+	public void adicionarTxtInterface() {
+		if(!painel.getChildren().contains(dataBox)) {
+			dataLabel=new Label("Insira a data final referente ao estoque:");
+			botaoData=new DatePicker();
+			dataBox=new HBox(dataLabel,botaoData);
+			painel.getChildren().addAll(dataBox,criarTxtButton);
+		}
 	}
 
 	public VBox getPainel() {
@@ -87,6 +99,11 @@ public class PainelPrincipal {
 	public TextField getReferenciaField() {
 		return referenciaField;
 	}
+
+	public String getBotaoDataText() {
+		return botaoData.getEditor().getText();
+	}
+	
 	
     
     
