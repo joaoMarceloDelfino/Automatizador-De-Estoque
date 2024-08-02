@@ -7,15 +7,19 @@ public class Item {
 private int linha;
 private String referencia;
 private double quantidade;
+
+
 public Item( String referencia, double quantidade) {
 	this.referencia = referencia;
 	this.quantidade = quantidade;
 }
+
 public Item(int linha, String referencia, double quantidade) {
 	this.linha = linha;
 	this.referencia = referencia;
 	this.quantidade = quantidade;
 }
+
 public int getLinha() {
 	return linha;
 }
@@ -37,6 +41,8 @@ public void setQuantidade(double quantidade) {
 public void addQuantidade(double quantidade) {
 	 this.quantidade+=quantidade;
 }
+
+
 @Override
 public int hashCode() {
 	return Objects.hash(referencia);

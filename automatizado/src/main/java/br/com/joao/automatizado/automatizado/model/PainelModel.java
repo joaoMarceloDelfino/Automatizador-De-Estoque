@@ -38,7 +38,7 @@ public class PainelModel  {
 	Writer escritor;
 	BufferedWriter escritorBuffer;
 	List<Item>itensAtualizados;
-	
+	 
  
 
 	public PainelModel() {
@@ -120,7 +120,7 @@ public class PainelModel  {
 					&& linha.getCell(primeiraColuna).getCellType() == CellType.BLANK == true
 					&& linha.getCell(primeiraColuna).getCellType() == CellType.BLANK == true
 					&& linha.getCell(primeiraColuna).getCellType() == CellType.BLANK == true) {
-				return linha.getRowNum() - 1;
+				return linha.getRowNum() ;
 
 			}
 
@@ -250,13 +250,24 @@ public class PainelModel  {
 	}
  
 
-	private List<Item> criarObjetos(List<Double> listaNumerica, List<String> listaString, int adicaoaPrimeiraLinha) {
+	private List<Item> criarObjetos(List<Double> listaQuantidade, List<String> listaReferencia, int adicaoaPrimeiraLinha) {
 		List<Item> itens = new ArrayList<Item>();
-
-		Iterator<Double> listaNumericaIterator = listaNumerica.iterator();
-		Iterator<String> listaStringIterator = listaString.iterator();
+		Iterator<Double> listaNumericaIterator = listaQuantidade.iterator();
+		Iterator<String> listaStringIterator = listaReferencia.iterator();
 		for (int i = primeiraLinha+adicaoaPrimeiraLinha ; i < ultimaLinha; i++) {
 			itens.add(new Item(i, listaStringIterator.next(), listaNumericaIterator.next()));
+		}
+		return itens;
+
+	}
+	private List<ItemTerceiros> criarObjetosComTerceiros(List<Double> listaQuantidade, List<String> listaReferencia,List<Double>listaTerceiros, int adicaoaPrimeiraLinha) {
+		List<ItemTerceiros> itens = new ArrayList<ItemTerceiros>();
+		Iterator<Double> listaQuantidadeIterator = listaQuantidade.iterator();
+		Iterator<Double> listaTerceirosIterator=listaTerceiros.iterator();
+		Iterator<String> listaReferenciaIterator = listaReferencia.iterator();
+		
+		for (int i = primeiraLinha+adicaoaPrimeiraLinha ; i < ultimaLinha; i++) {
+			itens.add(new ItemTerceiros(i, listaReferenciaIterator.next(), listaQuantidadeIterator.next(),listaTerceirosIterator.next()));
 		}
 		return itens;
 
@@ -269,18 +280,16 @@ public class PainelModel  {
 				duplicados.add(item);
 			}
 		}
-	/*	System.out.println("Nao duplicados");
-		for (Item item : naoDuplicados) {
-			System.out.println("A linha deste item e " + item.getLinha() + "a referencia deste item e "
-					+ item.getReferencia() + "a quantidade deste item e " + item.getQuantidade());
-		}
-		System.out.println("duplicados");
-		for (Item item : duplicados) {
-			System.out.println("A linha deste item e " + item.getLinha() + "a referencia deste item e "
-					+ item.getReferencia() + "a quantidade deste item e " + item.getQuantidade());
-		}*/
 	}
+	private void verificarDuplicataTerceiros(List<ItemTerceiros> itens, Set<ItemTerceiros> naoDuplicados, List<ItemTerceiros> duplicados) {
 
+		for (ItemTerceiros item : itens) {
+			if (!naoDuplicados.add(item)) {
+				duplicados.add(item);
+			}
+		}
+	}
+	
 	private void somarDuplicatas(Set<Item> naoDuplicados, List<Item> duplicados, List<Integer> linhasExcluir,
 			List<Item> naoDuplicadosEAtualizados) {
 		HashMap<Item, Double> duplicadosMapa = new HashMap<Item, Double>();
@@ -300,12 +309,57 @@ public class PainelModel  {
 			}
 		}
 	}
+	private void somarDuplicatasTerceiros(Set<ItemTerceiros> naoDuplicados, List<ItemTerceiros> duplicados, List<Integer> linhasExcluir,
+			List<ItemTerceiros> naoDuplicadosEAtualizados) {
+		HashMap<ItemTerceiros, Double> duplicadosMapaQuantidade = new HashMap<ItemTerceiros, Double>();
+		HashMap<ItemTerceiros,Double>duplicadosMapaQuantidadeTerceiros=new HashMap<ItemTerceiros,Double>();
+		Double quantidadeDuplicada;
+		Double quantidadeTerceirosDuplicado;
+
+		for (ItemTerceiros item : duplicados) {
+			linhasExcluir.add(item.getLinha());
+			duplicadosMapaQuantidade.merge(item, item.getQuantidade(), Double::sum);
+			if(item.temTerceiros) {
+				duplicadosMapaQuantidadeTerceiros.merge(item, item.getQuantidadeTerceiros(),Double::sum);
+			}
+ 		}
+
+		for (ItemTerceiros item : naoDuplicados) {
+			quantidadeDuplicada = duplicadosMapaQuantidade.get(item);
+			quantidadeTerceirosDuplicado=duplicadosMapaQuantidadeTerceiros.get(item);
+			if (quantidadeDuplicada != null) {
+				item.addQuantidade(quantidadeDuplicada);
+				if(!item.temTerceiros) {
+ 					naoDuplicadosEAtualizados.add(item);
+					continue;
+				}
+			
+			}
+			 if(quantidadeTerceirosDuplicado!=null) {
+				item.addQuantidadeTerceiros(quantidadeTerceirosDuplicado);
+				naoDuplicadosEAtualizados.add(item);
+			}
+		}
+	}
 
 	private void atualizarQuantidade(List<Item> naoDuplicadosEAtualizados, int colunaIndex) {
 		for (Item item : naoDuplicadosEAtualizados) {
-			sheet.getRow(item.getLinha()).getCell(colunaIndex).setCellValue(item.getQuantidade());
-			//System.out.println("quantidade do item: " + item.getLinha() + ": " + item.getQuantidade());
+			Cell celula=sheet.getRow(item.getLinha()).getCell(colunaIndex);
+			celula.setBlank();
+			celula.setCellValue(item.getQuantidade());
  
+		}
+	}
+	private void atualizarQuantidadeTerceiros(List<ItemTerceiros> naoDuplicadosEAtualizados, int quantidadeIndex,int quantidadeTerceirosIndex ) {
+		for (ItemTerceiros item : naoDuplicadosEAtualizados) {
+			Cell celula=sheet.getRow(item.getLinha()).getCell(quantidadeIndex);
+			celula.setBlank();
+			celula.setCellValue(item.getQuantidade());
+			if(item.temTerceiros) {
+				celula=sheet.getRow(item.getLinha()).getCell(quantidadeTerceirosIndex);
+				celula.setBlank();
+				celula.setCellValue(item.getQuantidadeTerceiros());
+			}
 		}
 	}
 
@@ -363,12 +417,15 @@ public class PainelModel  {
 			Iterator<Item>itensAtualizadosIterator=itensAtualizados.iterator();
 			while(itensAtualizadosIterator.hasNext()) {
 			Item itemAtual=itensAtualizadosIterator.next();
- 			escritorBuffer.write("K200||");
+  			escritorBuffer.write("K200||");
  			escritorBuffer.write(dataEstoque+"||");
             escritorBuffer.write(itemAtual.getReferencia()+"||");
             escritorBuffer.write(itemAtual.getQuantidade()+"||");
-            escritorBuffer.newLine();
-			}
+            if(itensAtualizadosIterator.hasNext()) {
+                escritorBuffer.newLine();
+            }
+  			}
+			
 			escritorBuffer.flush();
 			escritorBuffer.close();
 			escritor.close();
@@ -381,8 +438,11 @@ public class PainelModel  {
 	
 
 	public void eliminarDuplicatasESomarQuantidades(String quantidadeNome, String referenciaNome) {
-		int quantidadeIndex=0;
-		int referenciaIndex = 0;
+ 
+		int quantidadeIndex;
+		int referenciaIndex;
+		quantidadeIndex=0;
+		referenciaIndex=0;
 		quantidadeIndex = getColunaIndice(quantidadeNome);
 		referenciaIndex = getColunaIndice(referenciaNome);
 		Set<Item> naoDuplicados = new HashSet<Item>();
@@ -407,9 +467,42 @@ public class PainelModel  {
 		
 		
 	}
+	public void eliminarDuplicatasESomarQuantidadesTerceiros(String quantidadeNome, String referenciaNome, String quantidadeTerceiros) {
+ 		int quantidadeIndex;
+		int referenciaIndex;
+		int quantidadeTerceirosIndex;
+		quantidadeIndex=0;
+		referenciaIndex=0;
+		quantidadeTerceirosIndex=0;
+		quantidadeIndex = getColunaIndice(quantidadeNome);
+		referenciaIndex = getColunaIndice(referenciaNome);
+		quantidadeTerceirosIndex=getColunaIndice(quantidadeTerceiros);
+		Set<ItemTerceiros> naoDuplicados = new HashSet<ItemTerceiros>();
+		List<ItemTerceiros> duplicados = new ArrayList<ItemTerceiros>();
+		List<Integer> linhasExcluir = new ArrayList<Integer>();
+		List<ItemTerceiros> naoDuplicadosEAtualizados = new ArrayList<ItemTerceiros>();
+		List<String> referenciaColumn = iterarColunaString(referenciaNome, referenciaIndex);
+		List<Double> quantidadeColumn = iterarColunaNumerica(quantidadeNome, quantidadeIndex);
+		List<Double>quantidadeTerceirosColumn=iterarColunaNumerica(quantidadeTerceiros,quantidadeTerceirosIndex);
+		List<ItemTerceiros> itens = criarObjetosComTerceiros(quantidadeColumn, referenciaColumn,quantidadeTerceirosColumn,1);
+		verificarDuplicataTerceiros(itens, naoDuplicados, duplicados);
+		somarDuplicatasTerceiros(naoDuplicados, duplicados, linhasExcluir, naoDuplicadosEAtualizados);
+		atualizarQuantidadeTerceiros(naoDuplicadosEAtualizados, quantidadeIndex, quantidadeTerceirosIndex);
+		excluirLinhasDuplicadas(linhasExcluir);
+		primeiraLinha=encontrarPrimeiraLinha();
+		ultimaLinha=encontrarUltimaLinha();
+		referenciaColumn = iterarColunaString(referenciaNome, referenciaIndex);
+	    quantidadeColumn = iterarColunaNumerica(quantidadeNome, quantidadeIndex);
+	    itensAtualizados=criarObjetos(quantidadeColumn, referenciaColumn,1);
+		
+		
+	}
+	
 	public void eliminarDuplicatasESomarQuantidades(int quantidadeColuna, int referenciaColuna ) {
  		int quantidadeIndex=quantidadeColuna-1;
 		int referenciaIndex=referenciaColuna-1;
+		quantidadeIndex=quantidadeColuna-1;
+		referenciaIndex=referenciaColuna-1;
 		Set<Item> naoDuplicados = new HashSet<Item>();
 		List<Item> duplicados = new ArrayList<Item>();
 		List<Integer> linhasExcluir = new ArrayList<Integer>();
@@ -420,6 +513,28 @@ public class PainelModel  {
 		verificarDuplicata(itens, naoDuplicados, duplicados);
 		somarDuplicatas(naoDuplicados, duplicados, linhasExcluir, naoDuplicadosEAtualizados);
  		atualizarQuantidade(naoDuplicadosEAtualizados, quantidadeIndex);
+		excluirLinhasDuplicadas(linhasExcluir);
+		primeiraLinha=encontrarPrimeiraLinha();
+		ultimaLinha=encontrarUltimaLinha();
+		referenciaColumn = iterarColunaString(referenciaIndex);
+	    quantidadeColumn = iterarColunaNumerica(quantidadeIndex);
+	    itensAtualizados=criarObjetos(quantidadeColumn, referenciaColumn,0);
+ 	}
+	public void eliminarDuplicatasESomarQuantidadesTerceiros(int quantidadeColuna, int referenciaColuna, int quantidadeTerceirosColuna ) {
+ 		int quantidadeIndex=quantidadeColuna-1;
+		int referenciaIndex=referenciaColuna-1;
+ 		int quantidadeTerceirosIndex=quantidadeTerceirosColuna-1;
+		Set<ItemTerceiros> naoDuplicados = new HashSet<ItemTerceiros>();
+		List<ItemTerceiros> duplicados = new ArrayList<ItemTerceiros>();
+		List<Integer> linhasExcluir = new ArrayList<Integer>();
+		List<ItemTerceiros> naoDuplicadosEAtualizados = new ArrayList<ItemTerceiros>();
+ 		List<String> referenciaColumn = iterarColunaString(referenciaIndex);
+  		List<Double> quantidadeColumn = iterarColunaNumerica(quantidadeIndex);
+  		List<Double> quantidadeTerceirosColumn = iterarColunaNumerica(quantidadeTerceirosIndex);
+ 		List<ItemTerceiros> itens = criarObjetosComTerceiros(quantidadeColumn, referenciaColumn,quantidadeTerceirosColumn,0);
+		verificarDuplicataTerceiros(itens, naoDuplicados, duplicados);
+		somarDuplicatasTerceiros(naoDuplicados, duplicados, linhasExcluir, naoDuplicadosEAtualizados);
+ 		atualizarQuantidadeTerceiros(naoDuplicadosEAtualizados, quantidadeIndex,quantidadeTerceirosIndex);
 		excluirLinhasDuplicadas(linhasExcluir);
 		primeiraLinha=encontrarPrimeiraLinha();
 		ultimaLinha=encontrarUltimaLinha();
