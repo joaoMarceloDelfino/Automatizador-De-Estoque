@@ -16,17 +16,11 @@ PainelPrincipal painelPrincipal=new PainelPrincipal();
      Region painelCentral = new StackPane(painelPrincipal.getPainel());
      mainPainel.setCenter(painelCentral);
    	 Scene cena = new Scene(mainPainel, 1000, 350);
-     painelCentral.prefWidthProperty().bind(mainPainel.widthProperty());
-    painelCentral.prefHeightProperty().bind(mainPainel.heightProperty());
-   // BorderPane.setAlignment(painelCentral, Pos.CENTER);
-
-    
-
-
- 
      
 		primaryStage.setTitle("Automatizador de excel");
-		primaryStage.setScene(cena);
+		primaryStage.setResizable(false);
+		primaryStage.setMaximized(false);
+ 		primaryStage.setScene(cena);
 		primaryStage.show();
 	}
 	public static void main(String[] args) {

@@ -15,7 +15,7 @@ public class PainelControll {
 	private PainelPrincipal painelPrincipal;
 	private PainelModel painelModel=new PainelModel();
 	private FileChooserTela fileChooserTela=new FileChooserTela(painelModel);
-	private ChangeListener<String> referenciaListener ;
+	private ChangeListener<String> referenciaListener;
 	private  ChangeListener<String> quantidadeListener;
 	private  ChangeListener<String> terceirosListener;
  
@@ -53,7 +53,7 @@ public class PainelControll {
 
 	}
 	private void setActionListeners() {
-		 painelPrincipal.setBotaoEscolherListener(x->{fileChooserTela.buscarArquivo();painelPrincipal.setTextBoxPath(fileChooserTela.getFileEscolhido());});
+		 painelPrincipal.setBotaoEscolherListener(x->{botaoEscolherAcao();});
  		 painelPrincipal.setBotaoEnviarListener(x->{processarExcel();fileChooserTela.salvarArquivoExcel(painelModel.getSheetAtualizado());painelPrincipal.adicionarTxtInterface();});
  		 painelPrincipal.setOpcaoDeProcuraListener(x->{ComboBoxOpcoes();});
  		 painelPrincipal.setTxtBotaoListener(x->{fileChooserTela.paraExtensaoTxt();fileChooserTela.salvarArquivoExcel(painelModel.gerarTxt(painelPrincipal.getBotaoDataText()));});
@@ -88,6 +88,15 @@ public class PainelControll {
 
 
 		     
+		}
+	}
+	private void botaoEscolherAcao() {
+		try {
+			fileChooserTela.buscarArquivo();
+			painelPrincipal.excluirTxtInterface();
+			painelPrincipal.setTextBoxPath(fileChooserTela.getFileEscolhido());
+		} catch (Exception e) {
+ 			System.out.println("Arquivo selecionado e igual ao arquivo anteriormente selecionado");
 		}
 	}
 	private void CheckBoxOpcoes() {

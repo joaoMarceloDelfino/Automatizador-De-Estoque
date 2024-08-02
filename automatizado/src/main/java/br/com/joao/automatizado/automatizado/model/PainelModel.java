@@ -347,8 +347,7 @@ public class PainelModel  {
 			Cell celula=sheet.getRow(item.getLinha()).getCell(colunaIndex);
 			celula.setBlank();
 			celula.setCellValue(item.getQuantidade());
- 
-		}
+ 		}
 	}
 	private void atualizarQuantidadeTerceiros(List<ItemTerceiros> naoDuplicadosEAtualizados, int quantidadeIndex,int quantidadeTerceirosIndex ) {
 		for (ItemTerceiros item : naoDuplicadosEAtualizados) {
@@ -392,6 +391,18 @@ public class PainelModel  {
  
 
 	}
+	private void atualizarFormulas(List<Item>naoDuplicadosEAtualizados) {
+		
+		for(Item item:naoDuplicadosEAtualizados) {
+			for(Cell celula:sheet.getRow(item.getLinha())) {
+				if (celula.getCellType() == CellType.FORMULA) {
+					FormulaEvaluator evaluador = workbook.getCreationHelper().createFormulaEvaluator();
+					CellValue valorCelula = evaluador.evaluate(celula);
+					celula.setCellValue(valorCelula.getNumberValue());
+			}
+			}
+		}
+	}
 
 	
 
@@ -414,6 +425,9 @@ public class PainelModel  {
 			txt=new File("arquivo.txt");
 			escritor=new FileWriter(txt);
 			escritorBuffer=new BufferedWriter(escritor);
+			itensAtualizados.forEach(x->{if(x.getQuantidade()==0) {
+				itensAtualizados.remove(x);
+			}});
 			Iterator<Item>itensAtualizadosIterator=itensAtualizados.iterator();
 			while(itensAtualizadosIterator.hasNext()) {
 			Item itemAtual=itensAtualizadosIterator.next();
@@ -459,11 +473,13 @@ public class PainelModel  {
 		somarDuplicatas(naoDuplicados, duplicados, linhasExcluir, naoDuplicadosEAtualizados);
 		atualizarQuantidade(naoDuplicadosEAtualizados, quantidadeIndex);
 		excluirLinhasDuplicadas(linhasExcluir);
-		primeiraLinha=encontrarPrimeiraLinha();
+ 		primeiraLinha=encontrarPrimeiraLinha();
 		ultimaLinha=encontrarUltimaLinha();
 		referenciaColumn = iterarColunaString(referenciaNome, referenciaIndex);
 	    quantidadeColumn = iterarColunaNumerica(quantidadeNome, quantidadeIndex);
 	    itensAtualizados=criarObjetos(quantidadeColumn, referenciaColumn,1);
+		atualizarFormulas(itensAtualizados);
+
 		
 		
 	}
@@ -494,7 +510,8 @@ public class PainelModel  {
 		referenciaColumn = iterarColunaString(referenciaNome, referenciaIndex);
 	    quantidadeColumn = iterarColunaNumerica(quantidadeNome, quantidadeIndex);
 	    itensAtualizados=criarObjetos(quantidadeColumn, referenciaColumn,1);
-		
+		atualizarFormulas(itensAtualizados);
+
 		
 	}
 	
@@ -519,6 +536,9 @@ public class PainelModel  {
 		referenciaColumn = iterarColunaString(referenciaIndex);
 	    quantidadeColumn = iterarColunaNumerica(quantidadeIndex);
 	    itensAtualizados=criarObjetos(quantidadeColumn, referenciaColumn,0);
+		atualizarFormulas(itensAtualizados);
+
+	    
  	}
 	public void eliminarDuplicatasESomarQuantidadesTerceiros(int quantidadeColuna, int referenciaColuna, int quantidadeTerceirosColuna ) {
  		int quantidadeIndex=quantidadeColuna-1;
@@ -541,6 +561,8 @@ public class PainelModel  {
 		referenciaColumn = iterarColunaString(referenciaIndex);
 	    quantidadeColumn = iterarColunaNumerica(quantidadeIndex);
 	    itensAtualizados=criarObjetos(quantidadeColumn, referenciaColumn,0);
+		atualizarFormulas(itensAtualizados);
+
  	}
 	
 

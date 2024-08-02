@@ -57,7 +57,6 @@ public class PainelPrincipal {
 		referenciaBox=new HBox(10,referenciaLabel,referenciaField);
 		arquivoBox = new HBox(10,arquivoLabel, caminhoArquivoField, botaoEscolherArquivo);
 		opcaoDeProcuraBox=new HBox(10,opcaoDeProcuraLabel,opcaoDeProcura);
-		 
  		painel = new VBox(10,opcaoDeProcuraBox,referenciaBox,quantidadeBox,terceirosCheckBoxBox,terceirosBox,arquivoBox,botaoEnviar);
  	
  		
@@ -90,6 +89,11 @@ public class PainelPrincipal {
 			botaoData=new DatePicker();
 			dataBox=new HBox(dataLabel,botaoData);
 			painel.getChildren().addAll(dataBox,criarTxtButton);
+		}
+	}
+	public void excluirTxtInterface() {
+		if(painel.getChildren().contains(dataBox)) {
+			painel.getChildren().removeAll(dataBox,criarTxtButton);
 		}
 	}
 
