@@ -432,7 +432,7 @@ public class PainelModel  {
 			while(itensAtualizadosIterator.hasNext()) {
 			Item itemAtual=itensAtualizadosIterator.next();
   			escritorBuffer.write("K200||");
- 			escritorBuffer.write(dataEstoque+"||");
+ 			escritorBuffer.write(dataEstoque.replace("/","")+"||");
             escritorBuffer.write(itemAtual.getReferencia()+"||");
             escritorBuffer.write(itemAtual.getQuantidade()+"||");
             if(itensAtualizadosIterator.hasNext()) {
