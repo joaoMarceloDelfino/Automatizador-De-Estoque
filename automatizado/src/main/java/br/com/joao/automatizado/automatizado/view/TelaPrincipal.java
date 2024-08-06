@@ -19,12 +19,13 @@ public class TelaPrincipal extends Application {
   	 PainelControll painelControlador=new PainelControll(painelPrincipal);
   
    
-    	 Scene cena = new Scene(painel, 1000, 350);
+    	 Scene cena = new Scene(painel, 700, 300);
      
 		primaryStage.setTitle("Automatizador de estoque");
  		primaryStage.setScene(cena);
 		primaryStage.show();
-		 
+		primaryStage.setMaximized(false);	
+		primaryStage.setResizable(false);
 	}
 
 	 

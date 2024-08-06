@@ -24,7 +24,7 @@ public class PainelControll {
 	private  ChangeListener<String> quantidadeListener;
 	private  ChangeListener<String> terceirosListener;
 	private Alert alerta;
-	private ProgressBar barraProgresso=new ProgressBar();
+	//private ProgressBar barraProgresso=new ProgressBar();
  
  
 	public PainelControll(PainelPrincipal painelPrincipal) {

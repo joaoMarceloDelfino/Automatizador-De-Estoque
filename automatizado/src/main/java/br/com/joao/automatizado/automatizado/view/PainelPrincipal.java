@@ -47,6 +47,8 @@ public class PainelPrincipal {
 	
  	public PainelPrincipal() {
 		inicializarPainel();
+		/*painel.widthProperty().addListener((observable, oldValue, newValue) -> redimensionarElementos());
+	    painel.heightProperty().addListener((observable, oldValue, newValue) -> redimensionarElementos());*/
 	}
 
 	private void inicializarPainel() {
@@ -101,6 +103,18 @@ public class PainelPrincipal {
 			painel.getChildren().removeAll(dataBox,criarTxtButton);
 		}
 	}
+	/*private void redimensionarElementos() {
+        // Ajustar o tamanho dos componentes com base no tamanho da VBox.
+        double larguraPainel = painel.getWidth();
+        double alturaPainel = painel.getHeight();
+        
+        // Exemplo de ajuste:
+        caminhoArquivoField.setPrefWidth(larguraPainel - 600); // Ajusta o TextField para ocupar a largura disponível
+        botaoEscolherArquivo.setPrefWidth(100);
+        botaoEnviar.setPrefWidth(100);
+        
+        // Adicione ajustes adicionais conforme necessário para outros elementos.
+    }*/
 	private void setarMargemParaTodos() {
  		for(Node filho:painel.getChildren()) {
 			VBox.setMargin(filho,margem);
