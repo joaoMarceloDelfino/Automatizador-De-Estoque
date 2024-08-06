@@ -2,31 +2,35 @@ package br.com.joao.automatizado.automatizado.view;
 
 import br.com.joao.automatizado.automatizado.controll.PainelControll;
 import javafx.application.Application;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class TelaPrincipal extends Application {
-PainelPrincipal painelPrincipal=new PainelPrincipal();
+	PainelPrincipal painelPrincipal = new PainelPrincipal();
+	VBox painel = painelPrincipal.getPainel();
+ 
 	public void start(Stage primaryStage) throws Exception {
   	 PainelControll painelControlador=new PainelControll(painelPrincipal);
-  	 BorderPane mainPainel=new BorderPane();
-     Region painelCentral = new StackPane(painelPrincipal.getPainel());
-     mainPainel.setCenter(painelCentral);
-   	 Scene cena = new Scene(mainPainel, 1000, 350);
+  
+   
+    	 Scene cena = new Scene(painel, 1000, 350);
      
-		primaryStage.setTitle("Automatizador de excel");
-		primaryStage.setResizable(false);
-		primaryStage.setMaximized(false);
+		primaryStage.setTitle("Automatizador de estoque");
  		primaryStage.setScene(cena);
 		primaryStage.show();
+		 
 	}
+
+	 
+
 	public static void main(String[] args) {
 		launch(args);
 	}
-
-	
 
 }
