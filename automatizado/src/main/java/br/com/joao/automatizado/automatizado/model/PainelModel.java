@@ -37,10 +37,14 @@ public class PainelModel {
 	int primeiraColuna;
 	int quantidadeIndex;
 	int referenciaIndex;
+	int quantidadeTerceirosIndex;
+
 	File txt;
 	Writer escritor;
 	BufferedWriter escritorBuffer;
 	List<Item> itensAtualizados;
+	List<ItemTerceiros> itensAtualizadosTerceiros;
+
 	DecimalFormat formatador;
 
 	public PainelModel() {
@@ -396,6 +400,18 @@ public class PainelModel {
 			}
 		}
 	}
+	private void atualizarFormulasTerceiros(List<ItemTerceiros> naoDuplicadosEAtualizados) {
+
+		for (Item item : naoDuplicadosEAtualizados) {
+			for (Cell celula : sheet.getRow(item.getLinha())) {
+				if (celula.getCellType() == CellType.FORMULA) {
+					FormulaEvaluator evaluador = workbook.getCreationHelper().createFormulaEvaluator();
+					CellValue valorCelula = evaluador.evaluate(celula);
+					celula.setCellValue(valorCelula.getNumberValue());
+				}
+			}
+		}
+	}
 
 	public File getSheetAtualizado() {
 		try {
@@ -418,18 +434,45 @@ public class PainelModel {
 		formatador=new DecimalFormat("0.##");
 		escritor = new FileWriter(txt);
 		escritorBuffer = new BufferedWriter(escritor);
-		itensAtualizados.forEach(x -> {
-			if (x.getQuantidade() == 0) {
-				itensAtualizados.remove(x);
-			}
-		});
+		itensAtualizados.removeIf(x -> x.getQuantidade() == 0);
 		Iterator<Item> itensAtualizadosIterator = itensAtualizados.iterator();
 		while (itensAtualizadosIterator.hasNext()) {
 			Item itemAtual = itensAtualizadosIterator.next();
-			escritorBuffer.write("K200||");
-			escritorBuffer.write(dataEstoque.replace("/", "") + "||");
-			escritorBuffer.write(itemAtual.getReferencia() + "||");
-			escritorBuffer.write(formatador.format(itemAtual.getQuantidade())+ "||");
+			escritorBuffer.write("|K200|");
+			escritorBuffer.write(dataEstoque.replace("/", "") + "|");
+			escritorBuffer.write(itemAtual.getReferencia() + "|");
+			escritorBuffer.write(formatador.format(itemAtual.getQuantidade())+ "|");
+			escritorBuffer.write("0||");
+
+			if (itensAtualizadosIterator.hasNext()) {
+				escritorBuffer.newLine();
+			}
+		}
+
+		escritorBuffer.flush();
+		escritorBuffer.close();
+		escritor.close();
+		return txt;
+
+	}
+	public File gerarTxtTerceiros(String dataEstoque) throws IOException {
+
+		txt = new File("arquivo.txt");
+		formatador=new DecimalFormat("0.##");
+		escritor = new FileWriter(txt);
+		escritorBuffer = new BufferedWriter(escritor);
+		itensAtualizadosTerceiros.removeIf(x->x.getQuantidade() == 0&&x.getQuantidadeTerceiros()==0) ;
+
+ 				 
+		Iterator<ItemTerceiros> itensAtualizadosIterator = itensAtualizadosTerceiros.iterator();
+		while (itensAtualizadosIterator.hasNext()) {
+			ItemTerceiros itemAtual = itensAtualizadosIterator.next();
+			escritorBuffer.write("|K200|");
+			escritorBuffer.write(dataEstoque.replace("/", "") + "|");
+			escritorBuffer.write(itemAtual.getReferencia() + "|");
+			escritorBuffer.write(formatador.format(itemAtual.getQuantidade())+ "|");
+			escritorBuffer.write(itemAtual.getQuantidadeTerceiros()+"||");
+
 			if (itensAtualizadosIterator.hasNext()) {
 				escritorBuffer.newLine();
 			}
@@ -477,8 +520,7 @@ public class PainelModel {
 		/*
 		 * int quantidadeIndex; int referenciaIndex;
 		 */
-		int quantidadeTerceirosIndex;
-		quantidadeIndex = 0;
+ 		quantidadeIndex = 0;
 		referenciaIndex = 0;
 		quantidadeTerceirosIndex = 0;
 		quantidadeIndex = getColunaIndice(quantidadeNome);
@@ -500,8 +542,9 @@ public class PainelModel {
 		ultimaLinha = encontrarUltimaLinha();
 		referenciaColumn = iterarColunaString(referenciaNome, referenciaIndex);
 		quantidadeColumn = iterarColunaNumerica(quantidadeNome, quantidadeIndex);
-		itensAtualizados = criarObjetos(quantidadeColumn, referenciaColumn);
-		atualizarFormulas(itensAtualizados);
+		quantidadeTerceirosColumn=iterarColunaNumerica(quantidadeTerceiros, quantidadeTerceirosIndex);
+		itensAtualizadosTerceiros = criarObjetosComTerceiros(quantidadeColumn, referenciaColumn,quantidadeTerceirosColumn );
+		atualizarFormulasTerceiros(itensAtualizadosTerceiros);
 
 	}
 
@@ -548,6 +591,8 @@ public class PainelModel {
 		List<String> referenciaColumn = iterarColunaString(referenciaIndex);
 		List<Double> quantidadeColumn = iterarColunaNumerica(quantidadeIndex);
 		List<Double> quantidadeTerceirosColumn = iterarColunaNumerica(quantidadeTerceirosIndex);
+		System.out.println("quantidade terceiros index"+quantidadeTerceirosIndex);
+		quantidadeTerceirosColumn.forEach(x->System.out.println("quantidade de terceiro"));
 		List<ItemTerceiros> itens = criarObjetosComTerceiros(quantidadeColumn, referenciaColumn,
 				quantidadeTerceirosColumn);
 		verificarDuplicataTerceiros(itens, naoDuplicados, duplicados);
@@ -557,9 +602,9 @@ public class PainelModel {
 		ultimaLinha = encontrarUltimaLinha();
 		referenciaColumn = iterarColunaString(referenciaIndex);
 		quantidadeColumn = iterarColunaNumerica(quantidadeIndex);
-		itensAtualizados = criarObjetos(quantidadeColumn, referenciaColumn);
-		atualizarFormulas(itensAtualizados);
-
+		quantidadeTerceirosColumn=iterarColunaNumerica(quantidadeTerceirosIndex);
+		itensAtualizadosTerceiros = criarObjetosComTerceiros(quantidadeColumn, referenciaColumn,quantidadeTerceirosColumn );
+		atualizarFormulasTerceiros(itensAtualizadosTerceiros);
 	}
 
 	private void sheetCriadoVerificacao() {

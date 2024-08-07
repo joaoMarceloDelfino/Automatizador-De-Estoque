@@ -3,7 +3,7 @@ package br.com.joao.automatizado.automatizado.controll;
  
 
 
-import java.io.IOException;
+ 
 import java.nio.file.FileAlreadyExistsException;
 
 import br.com.joao.automatizado.automatizado.model.PainelModel;
@@ -12,8 +12,7 @@ import br.com.joao.automatizado.automatizado.view.PainelPrincipal;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TextField;
+ import javafx.scene.control.TextField;
  
 
 public class PainelControll {
@@ -126,8 +125,14 @@ public class PainelControll {
 	private void botaoTxtAcao() {
 		try {
 			fileChooserTela.paraExtensaoTxt();
-			fileChooserTela.salvarArquivoExcel(painelModel.gerarTxt(painelPrincipal.getBotaoDataText())); 
-		} catch (Exception e) {
+			if(!painelPrincipal.getTerceirosCheckBox().isSelected()) {
+				fileChooserTela.salvarArquivoExcel(painelModel.gerarTxt(painelPrincipal.getBotaoDataText())); 
+			}
+			else {
+				fileChooserTela.salvarArquivoExcel(painelModel.gerarTxtTerceiros(painelPrincipal.getBotaoDataText())); 
+
+			}
+ 		} catch (Exception e) {
  			e.printStackTrace();
  			alerta=new Alert(Alert.AlertType.ERROR);
  			alerta.setHeaderText("Alerta!");
