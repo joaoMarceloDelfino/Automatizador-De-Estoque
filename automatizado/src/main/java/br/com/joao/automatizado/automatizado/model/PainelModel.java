@@ -158,7 +158,7 @@ public class PainelModel {
 
 		for (int i = primeiraLinha; i < ultimaLinha; i++) {
 			linha = sheet.getRow(i);
-			if (linha != null&&sheet.getRow(i).getCell(quantidadeIndex).getCellType()!=CellType.STRING) {
+			if (linha != null && sheet.getRow(i).getCell(quantidadeIndex).getCellType() != CellType.STRING) {
 
 				switch (linha.getCell(valor).getCellType()) {
 				case STRING:
@@ -177,7 +177,7 @@ public class PainelModel {
 				}
 			}
 		}
- 		return rowValores;
+		return rowValores;
 
 	}
 
@@ -216,14 +216,14 @@ public class PainelModel {
 		for (int i = primeiraLinha; i < ultimaLinha; i++) {
 			Cell celula = sheet.getRow(i).getCell(valor);
 
-			if (sheet.getRow(i) != null&&sheet.getRow(i).getCell(quantidadeIndex).getCellType()!=CellType.STRING) {
+			if (sheet.getRow(i) != null && sheet.getRow(i).getCell(quantidadeIndex).getCellType() != CellType.STRING) {
 
 				if (celula.getCellType() == CellType.NUMERIC) {
 					rowValores.add(celula.getNumericCellValue());
 				} else if (celula.getCellType() == CellType.FORMULA) {
 					FormulaEvaluator evaluador = workbook.getCreationHelper().createFormulaEvaluator();
 					CellValue valorCelula = evaluador.evaluate(celula);
-						rowValores.add(valorCelula.getNumberValue());
+					rowValores.add(valorCelula.getNumberValue());
 				}
 
 			}
@@ -236,7 +236,7 @@ public class PainelModel {
 	private List<Item> criarObjetos(List<Double> listaQuantidade, List<String> listaReferencia) {
 		int adicaoPrimeiraLinha = 0;
 		if (sheet.getRow(primeiraLinha).getCell(quantidadeIndex).getCellType() == CellType.STRING) {
-			adicaoPrimeiraLinha=1;
+			adicaoPrimeiraLinha = 1;
 		}
 		List<Item> itens = new ArrayList<Item>();
 		Iterator<Double> listaNumericaIterator = listaQuantidade.iterator();
@@ -252,8 +252,8 @@ public class PainelModel {
 			List<Double> listaTerceiros) {
 		int adicaoPrimeiraLinha = 0;
 		if (sheet.getRow(primeiraLinha).getCell(quantidadeIndex).getCellType() == CellType.STRING) {
-			adicaoPrimeiraLinha=1;
- 		}
+			adicaoPrimeiraLinha = 1;
+		}
 		List<ItemTerceiros> itens = new ArrayList<ItemTerceiros>();
 		Iterator<Double> listaQuantidadeIterator = listaQuantidade.iterator();
 		Iterator<Double> listaTerceirosIterator = listaTerceiros.iterator();
@@ -400,6 +400,7 @@ public class PainelModel {
 			}
 		}
 	}
+
 	private void atualizarFormulasTerceiros(List<ItemTerceiros> naoDuplicadosEAtualizados) {
 
 		for (Item item : naoDuplicadosEAtualizados) {
@@ -431,22 +432,19 @@ public class PainelModel {
 	public File gerarTxt(String dataEstoque) throws IOException {
 
 		txt = new File("arquivo.txt");
-		formatador=new DecimalFormat("0.##");
+		formatador = new DecimalFormat("0.##");
 		escritor = new FileWriter(txt);
 		escritorBuffer = new BufferedWriter(escritor);
-		itensAtualizados.removeIf(x -> x.getQuantidade() == 0);
+		itensAtualizados.removeIf(x -> x.getQuantidade() <= 0);
 		Iterator<Item> itensAtualizadosIterator = itensAtualizados.iterator();
 		while (itensAtualizadosIterator.hasNext()) {
 			Item itemAtual = itensAtualizadosIterator.next();
 			escritorBuffer.write("|K200|");
 			escritorBuffer.write(dataEstoque.replace("/", "") + "|");
 			escritorBuffer.write(itemAtual.getReferencia() + "|");
-			escritorBuffer.write(formatador.format(itemAtual.getQuantidade())+ "|");
+			escritorBuffer.write(formatador.format(itemAtual.getQuantidade()) + "|");
 			escritorBuffer.write("0||");
-
-			if (itensAtualizadosIterator.hasNext()) {
-				escritorBuffer.newLine();
-			}
+			escritorBuffer.newLine();
 		}
 
 		escritorBuffer.flush();
@@ -455,27 +453,24 @@ public class PainelModel {
 		return txt;
 
 	}
+
 	public File gerarTxtTerceiros(String dataEstoque) throws IOException {
 
 		txt = new File("arquivo.txt");
-		formatador=new DecimalFormat("0.##");
+		formatador = new DecimalFormat("0.##");
 		escritor = new FileWriter(txt);
 		escritorBuffer = new BufferedWriter(escritor);
-		itensAtualizadosTerceiros.removeIf(x->x.getQuantidade() == 0&&x.getQuantidadeTerceiros()==0) ;
+		itensAtualizadosTerceiros.removeIf(x -> x.getQuantidade() <= 0 && x.getQuantidadeTerceiros() <= 0);
 
- 				 
 		Iterator<ItemTerceiros> itensAtualizadosIterator = itensAtualizadosTerceiros.iterator();
 		while (itensAtualizadosIterator.hasNext()) {
 			ItemTerceiros itemAtual = itensAtualizadosIterator.next();
 			escritorBuffer.write("|K200|");
 			escritorBuffer.write(dataEstoque.replace("/", "") + "|");
 			escritorBuffer.write(itemAtual.getReferencia() + "|");
-			escritorBuffer.write(formatador.format(itemAtual.getQuantidade())+ "|");
-			escritorBuffer.write(itemAtual.getQuantidadeTerceiros()+"||");
-
-			if (itensAtualizadosIterator.hasNext()) {
-				escritorBuffer.newLine();
-			}
+			escritorBuffer.write(formatador.format(itemAtual.getQuantidade()) + "|");
+			escritorBuffer.write(itemAtual.getQuantidadeTerceiros() + "||");
+			escritorBuffer.newLine();
 		}
 
 		escritorBuffer.flush();
@@ -486,11 +481,6 @@ public class PainelModel {
 	}
 
 	public void eliminarDuplicatasESomarQuantidades(String quantidadeNome, String referenciaNome) throws Exception {
-
-		/*
-		 * int quantidadeIndex; int referenciaIndex; quantidadeIndex = 0;
-		 * referenciaIndex = 0;
-		 */
 		quantidadeIndex = getColunaIndice(quantidadeNome);
 		referenciaIndex = getColunaIndice(referenciaNome);
 		Set<Item> naoDuplicados = new HashSet<Item>();
@@ -517,10 +507,7 @@ public class PainelModel {
 
 	public void eliminarDuplicatasESomarQuantidadesTerceiros(String quantidadeNome, String referenciaNome,
 			String quantidadeTerceiros) throws Exception {
-		/*
-		 * int quantidadeIndex; int referenciaIndex;
-		 */
- 		quantidadeIndex = 0;
+		quantidadeIndex = 0;
 		referenciaIndex = 0;
 		quantidadeTerceirosIndex = 0;
 		quantidadeIndex = getColunaIndice(quantidadeNome);
@@ -542,20 +529,17 @@ public class PainelModel {
 		ultimaLinha = encontrarUltimaLinha();
 		referenciaColumn = iterarColunaString(referenciaNome, referenciaIndex);
 		quantidadeColumn = iterarColunaNumerica(quantidadeNome, quantidadeIndex);
-		quantidadeTerceirosColumn=iterarColunaNumerica(quantidadeTerceiros, quantidadeTerceirosIndex);
-		itensAtualizadosTerceiros = criarObjetosComTerceiros(quantidadeColumn, referenciaColumn,quantidadeTerceirosColumn );
+		quantidadeTerceirosColumn = iterarColunaNumerica(quantidadeTerceiros, quantidadeTerceirosIndex);
+		itensAtualizadosTerceiros = criarObjetosComTerceiros(quantidadeColumn, referenciaColumn,
+				quantidadeTerceirosColumn);
 		atualizarFormulasTerceiros(itensAtualizadosTerceiros);
 
 	}
 
 	public void eliminarDuplicatasESomarQuantidades(int quantidadeColuna, int referenciaColuna) throws Exception {
-		/*
-		 * int quantidadeIndex = quantidadeColuna - 1; int referenciaIndex =
-		 * referenciaColuna - 1;
-		 */
 		quantidadeIndex = quantidadeColuna - 1;
- 		referenciaIndex = referenciaColuna - 1;
- 
+		referenciaIndex = referenciaColuna - 1;
+
 		Set<Item> naoDuplicados = new HashSet<Item>();
 		List<Item> duplicados = new ArrayList<Item>();
 		List<Integer> linhasExcluir = new ArrayList<Integer>();
@@ -577,12 +561,8 @@ public class PainelModel {
 
 	public void eliminarDuplicatasESomarQuantidadesTerceiros(int quantidadeColuna, int referenciaColuna,
 			int quantidadeTerceirosColuna) throws Exception {
-		/*
-		 * int quantidadeIndex = quantidadeColuna - 1; int referenciaIndex =
-		 * referenciaColuna - 1;
-		 */
 		quantidadeIndex = quantidadeColuna - 1;
- 		referenciaIndex = referenciaColuna - 1;
+		referenciaIndex = referenciaColuna - 1;
 		int quantidadeTerceirosIndex = quantidadeTerceirosColuna - 1;
 		Set<ItemTerceiros> naoDuplicados = new HashSet<ItemTerceiros>();
 		List<ItemTerceiros> duplicados = new ArrayList<ItemTerceiros>();
@@ -591,8 +571,8 @@ public class PainelModel {
 		List<String> referenciaColumn = iterarColunaString(referenciaIndex);
 		List<Double> quantidadeColumn = iterarColunaNumerica(quantidadeIndex);
 		List<Double> quantidadeTerceirosColumn = iterarColunaNumerica(quantidadeTerceirosIndex);
-		System.out.println("quantidade terceiros index"+quantidadeTerceirosIndex);
-		quantidadeTerceirosColumn.forEach(x->System.out.println("quantidade de terceiro"));
+		System.out.println("quantidade terceiros index" + quantidadeTerceirosIndex);
+		quantidadeTerceirosColumn.forEach(x -> System.out.println("quantidade de terceiro"));
 		List<ItemTerceiros> itens = criarObjetosComTerceiros(quantidadeColumn, referenciaColumn,
 				quantidadeTerceirosColumn);
 		verificarDuplicataTerceiros(itens, naoDuplicados, duplicados);
@@ -602,8 +582,9 @@ public class PainelModel {
 		ultimaLinha = encontrarUltimaLinha();
 		referenciaColumn = iterarColunaString(referenciaIndex);
 		quantidadeColumn = iterarColunaNumerica(quantidadeIndex);
-		quantidadeTerceirosColumn=iterarColunaNumerica(quantidadeTerceirosIndex);
-		itensAtualizadosTerceiros = criarObjetosComTerceiros(quantidadeColumn, referenciaColumn,quantidadeTerceirosColumn );
+		quantidadeTerceirosColumn = iterarColunaNumerica(quantidadeTerceirosIndex);
+		itensAtualizadosTerceiros = criarObjetosComTerceiros(quantidadeColumn, referenciaColumn,
+				quantidadeTerceirosColumn);
 		atualizarFormulasTerceiros(itensAtualizadosTerceiros);
 	}
 
