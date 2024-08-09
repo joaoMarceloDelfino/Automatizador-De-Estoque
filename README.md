@@ -1,0 +1,2 @@
+-Necessário JDK 22 instalado no computador e sua configuração nas variáveis de ambiente para o funcionamento da aplicação.
+-Para fins de teste, há uma planilha nomeada como: "ESTOQUE FICTICIO PARA TESTES DA APLICAÇÃO" neste repositório.
