@@ -75,7 +75,6 @@ public class PainelModel {
 	}
 
 	private Integer getColunaIndice(String equivalencia) throws Exception {
-		sheetCriadoVerificacao();
 
 		for (Cell celula : sheet.getRow(primeiraLinha)) {
 			if (celula.getStringCellValue().strip().equals(equivalencia.strip())) {
@@ -93,9 +92,9 @@ public class PainelModel {
 				for (int j = 0; j < linha.getLastCellNum(); j++) {
 					if (linha.getCell(j).getCellType() != CellType.BLANK == true
 							&& linha.getCell(j + 1).getCellType() != CellType.BLANK == true
-							&& linha.getCell(j + 2).getCellType() != CellType.BLANK == true
-							&& linha.getCell(j + 3).getCellType() != CellType.BLANK == true) {
+							&& linha.getCell(j + 2).getCellType() != CellType.BLANK == true) {
 						primeiraColuna = j;
+						System.out.println("Primeira coluna"+ primeiraColuna);
 						return linha.getRowNum();
 
 					}
@@ -111,9 +110,9 @@ public class PainelModel {
 			Row linha = sheet.getRow(i);
 
 			if (linha.getCell(primeiraColuna).getCellType() == CellType.BLANK == true
-					&& linha.getCell(primeiraColuna).getCellType() == CellType.BLANK == true
-					&& linha.getCell(primeiraColuna).getCellType() == CellType.BLANK == true
-					&& linha.getCell(primeiraColuna).getCellType() == CellType.BLANK == true) {
+					&& linha.getCell(primeiraColuna+1).getCellType() == CellType.BLANK == true
+					&& linha.getCell(primeiraColuna+2).getCellType() == CellType.BLANK == true
+					) {
 				return linha.getRowNum();
 
 			}
@@ -123,7 +122,6 @@ public class PainelModel {
 	}
 
 	public List<String> iterarColunaString(String colunaNome, int colunaIndex) throws Exception {
-		sheetCriadoVerificacao();
 		List<String> rowValores = new ArrayList<String>();
 		Row linha;
 
@@ -152,7 +150,6 @@ public class PainelModel {
 	}
 
 	public List<String> iterarColunaString(int valor) throws Exception {
-		sheetCriadoVerificacao();
 		List<String> rowValores = new ArrayList<String>();
 		Row linha;
 
@@ -182,7 +179,7 @@ public class PainelModel {
 	}
 
 	public List<Double> iterarColunaNumerica(String colunaNome, int colunaIndex) throws Exception {
-		sheetCriadoVerificacao();
+
 		List<Double> rowValores = new ArrayList<Double>();
 
 		// System.out.println("indice coluna quantidade" + colunaIndex);
@@ -208,7 +205,6 @@ public class PainelModel {
 	}
 
 	public List<Double> iterarColunaNumerica(int valor) {
-		sheetCriadoVerificacao();
 		List<Double> rowValores = new ArrayList<Double>();
 
 		// System.out.println("indice coluna quantidade" + colunaIndex);
@@ -431,7 +427,7 @@ public class PainelModel {
 
 	public File gerarTxt(String dataEstoque) throws IOException {
 
-		txt = new File("arquivo.txt");
+		File txt = new File("arquivo.txt");
 		formatador = new DecimalFormat("0.##");
 		escritor = new FileWriter(txt);
 		escritorBuffer = new BufferedWriter(escritor);
@@ -502,6 +498,8 @@ public class PainelModel {
 		quantidadeColumn = iterarColunaNumerica(quantidadeNome, quantidadeIndex);
 		itensAtualizados = criarObjetos(quantidadeColumn, referenciaColumn);
 		atualizarFormulas(itensAtualizados);
+		System.out.println("Primeira linha"+primeiraLinha);
+		System.out.println("ultima linha"+encontrarUltimaLinha());
 
 	}
 
@@ -586,13 +584,6 @@ public class PainelModel {
 		itensAtualizadosTerceiros = criarObjetosComTerceiros(quantidadeColumn, referenciaColumn,
 				quantidadeTerceirosColumn);
 		atualizarFormulasTerceiros(itensAtualizadosTerceiros);
-	}
-
-	private void sheetCriadoVerificacao() {
-		if (sheet == null) {
-			throw new IllegalStateException("A planilha não foi criada. Chame o método criarSheet primeiro.");
-		}
-
 	}
 
 }
